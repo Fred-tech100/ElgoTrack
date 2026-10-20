@@ -12,7 +12,7 @@
 <aside id="sidebar" class="sidebar no-print z-40 flex w-64 -translate-x-full flex-col bg-brand-900 transition-transform lg:translate-x-0">
   <div class="flex h-14 shrink-0 items-center gap-2.5 border-b border-brand-800 px-4">
     {% if business and business.logo %}<img src="{{ business.logo.url }}" alt="" class="h-8 w-8 rounded bg-white object-contain p-0.5">
-    {% else %}<img src="{% static 'images/landing/logo.jpeg' %}" alt="ElgoTrack" class="h-8 w-8 rounded bg-white object-contain p-0.5">{% endif %}
+    {% else %}<img src="{% static 'images/landing/logo.png' %}" alt="ElgoTrack" class="h-8 w-8 rounded bg-white object-contain p-0.5">{% endif %}
     <div class="min-w-0"><p class="truncate text-sm font-semibold text-white">{% if business %}{{ business.name }}{% else %}ElgonNova Platform{% endif %}</p>
     <p class="truncate text-[11px] text-brand-300">{% if business %}{{ user.role.name|default:"Member" }}{% else %}Super administrator{% endif %}</p></div>
   </div>
