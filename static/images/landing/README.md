@@ -8,8 +8,8 @@ shows a built-in placeholder until a real file exists (a missing file never show
 | `hero/` | `hero-dashboard.png`, `hero-inventory.png`, `hero-sales.png`, `hero-reconciliation.png`, `hero-reports.png` | Hero slider (in this order) |
 | `screenshots/` | `dashboard.png`, `inventory.png`, `sales.png`, `purchases.png`, `customers.png`, `reports.png`, `reconciliation.png`, `invoices.png` | "See it in use" gallery |
 | `features/` | *(reserved for future feature illustrations)* | not used yet |
-| `.` | `logo.jpeg` (1080x1080 ElgoTrack logo) | landing header/footer, authentication pages, app sidebar fallback |
-| `branding/` | `elgotrack-mark.svg` (logo mark), `og-elgotrack.png` (1200x630 social preview) | favicon, link previews |
+| `.` | `logo.png` (1080x1080 ElgoTrack logo) | landing header/footer, authentication pages, app sidebar fallback, favicon |
+| `branding/` | `og-image.png` (1200x630 social preview) | link previews |
 
 Guidelines
 * Screenshots: **16:10** (for example 1600x1000), PNG or WebP renamed to the `.png` name above only if it really is PNG; for WebP edit the file name in `templates/landing/_hero.html` / `_screens.html`.

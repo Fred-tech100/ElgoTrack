@@ -14,7 +14,7 @@ from django.urls import reverse
 from .models import EmailDelivery
 
 logger = logging.getLogger(__name__)
-LOGO_PATH = "/static/images/landing/branding/elgotrack-mark.svg"
+LOGO_PATH = "/static/images/landing/logo.png"
 
 
 def queue_email(*, email_type, recipient, subject, template, context, business=None, user=None,

@@ -204,7 +204,7 @@ def _platform_money(invoice, value):
 
 
 def _platform_letterhead(width=180 * mm):
-    logo_path = finders.find("images/landing/logo.jpeg")
+    logo_path = finders.find("images/landing/logo.png")
     brand = Table(
         [[Image(logo_path, width=14 * mm, height=14 * mm),
           Paragraph("ElgonNova Technologies", H)]],
