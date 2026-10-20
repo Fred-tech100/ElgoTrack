@@ -1,0 +1,34 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Sign in{% endblock %} · ElgonNova</title><link rel="stylesheet" href="{% static 'css/app.css' %}"></head>
+<body class="min-h-screen bg-white">
+<div class="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
+  <section class="relative hidden flex-col justify-between bg-brand-900 p-12 text-white lg:flex">
+    <a class="flex items-center gap-2.5" href="#main" aria-label="ElgoTrack home">
+      <img class="h-12 w-12 shrink-0 rounded bg-white object-contain p-0.5"
+           src="{% static 'images/landing/logo.jpeg' %}" alt="" width="48" height="48">
+      <span class="text-xl font-bold text-white">ElgoTrack</span>
+    </a>
+    <div class="max-w-md">
+      <h2 class="text-3xl font-semibold leading-tight text-white">Know exactly what is on your shelves and what you are owed.</h2>
+      <p class="mt-4 text-brand-200">Stock control, sales, purchasing, credit and expenses in one reliable system built for shops, pharmacies and wholesalers.</p>
+      <ul class="mt-8 space-y-3 text-sm text-brand-100">
+        <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Every stock change is traceable to a sale, purchase or count.</li>
+        <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Customer and supplier balances that always agree with the books.</li>
+        <li class="flex gap-3"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>Invoices and receipts generated automatically.</li>
+      </ul>
+    </div>
+    <p class="text-xs text-brand-300">© ElgonNova Technologies</p>
+  </section>
+  <section class="flex items-center justify-center px-6 py-12">
+    <div class="w-full max-w-sm">
+      <a class="mb-8 flex items-center gap-2.5 lg:hidden" href="#main" aria-label="ElgoTrack home">
+        <img class="h-8 w-8 shrink-0 rounded bg-white object-contain p-0.5"
+             src="{% static 'images/landing/logo.jpeg' %}" alt="" width="32" height="32">
+        <span class="font-semibold text-brand-900">ElgoTrack</span>
+      </a>
+      {% if messages %}<div class="mb-4 space-y-2">{% for m in messages %}<div class="alert-{% if m.tags == 'error' %}error{% else %}success{% endif %}">{{ m }}</div>{% endfor %}</div>{% endif %}
+      {% block content %}{% endblock %}
+    </div>
+  </section>
+</div><script src="{% static 'js/app.js' %}" defer></script></body></html>

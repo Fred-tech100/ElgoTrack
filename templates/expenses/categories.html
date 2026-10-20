@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Expense categories{% endblock %}{% block heading %}Expense categories{% endblock %}
+{% block actions %}{% if user|has_perm_code:"expenses.create" %}<a class="btn-accent" href="{% url 'expenses:category_create' %}">Add category</a>{% endif %}{% endblock %}
+{% block content %}<div class="table-wrap max-w-xl"><table class="table"><tbody>{% for c in object_list %}<tr><td>{{ c.name }}</td><td>{% if c.is_active %}{% badge "active" %}{% else %}{% badge "void" "Inactive" %}{% endif %}</td><td class="text-right"><a class="link" href="{% url 'expenses:category_edit' c.pk %}">Edit</a></td></tr>{% endfor %}</tbody></table></div>{% endblock %}

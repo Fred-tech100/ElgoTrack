@@ -1,0 +1,14 @@
+[run]
+source = .
+omit =
+    */migrations/*
+    tests/*
+    manage.py
+    config/wsgi.py
+    node_modules/*
+    docker/*
+[report]
+skip_covered = True
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError

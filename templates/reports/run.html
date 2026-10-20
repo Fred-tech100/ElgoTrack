@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}{{ report.title }}{% endblock %}{% block heading %}{{ report.title }}{% endblock %}
+{% block breadcrumbs %}<nav class="mb-1 text-xs text-slate-500"><a class="link" href="{% url 'reports:index' %}">Reports</a> / {{ report.group }}</nav>{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">{{ report.description }}</p>{% endblock %}
+{% block content %}
+{% if report.filters %}<form method="get" class="filter-bar no-print">{% include "reports/_filters.html" %}<button class="btn-primary">Run report</button></form>{% endif %}
+{% include "reports/_result.html" %}
+{% endblock %}

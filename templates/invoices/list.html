@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Invoices & receipts{% endblock %}{% block heading %}Invoices & receipts{% endblock %}
+{% block actions %}<a class="btn-accent" href="{% url 'verify:scan' %}">Scan to verify</a>{% endblock %}
+{% block content %}
+<div class="mb-4 flex gap-2"><a class="{% if kind == 'invoices' %}btn-primary{% else %}btn-secondary{% endif %}" href="?kind=invoices">Invoices</a><a class="{% if kind == 'receipts' %}btn-primary{% else %}btn-secondary{% endif %}" href="?kind=receipts">Receipts</a></div>
+<form class="filter-bar" method="get"><input type="hidden" name="kind" value="{{ kind }}"><div class="grow"><label class="label">Search</label><input class="input" name="q" value="{{ request.GET.q }}" placeholder="Number or customer"></div><button class="btn-primary">Search</button></form>
+<div class="table-wrap"><table class="table"><thead><tr><th>Number</th><th>Date</th><th>Customer</th><th class="num">Amount</th><th></th></tr></thead><tbody>
+{% if kind == "receipts" %}{% for r in object_list %}<tr><td><a class="link" href="{% url 'invoices:receipt_detail' r.pk %}">{{ r.number }}</a></td><td>{{ r.issued_at|date:"d M Y H:i" }}</td><td>{{ r.customer|default:"Walk-in" }}</td><td class="num">{% money r.amount %}</td><td class="text-right"><a class="link" href="{% url 'invoices:receipt_pdf' r.pk %}">PDF</a></td></tr>{% empty %}<tr><td colspan="5" class="py-10 text-center text-slate-500">No receipts yet.</td></tr>{% endfor %}
+{% else %}{% for i in object_list %}<tr><td><a class="link" href="{% url 'invoices:invoice_detail' i.pk %}">{{ i.number }}</a> {% if i.status == "void" %}{% badge "void" "Void" %}{% endif %}</td><td>{{ i.issue_date|date:"d M Y" }}</td><td>{{ i.sale.customer|default:"Walk-in" }}</td><td class="num">{% money i.sale.total %}</td><td class="text-right"><a class="link" href="{% url 'invoices:invoice_pdf' i.pk %}">PDF</a></td></tr>{% empty %}<tr><td colspan="5" class="py-10 text-center text-slate-500">No invoices yet.</td></tr>{% endfor %}{% endif %}
+</tbody></table></div>{% include "components/pagination.html" %}
+{% endblock %}

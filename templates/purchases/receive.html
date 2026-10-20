@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Receive goods{% endblock %}{% block heading %}Receive goods for {{ po.number }}{% endblock %}
+{% block breadcrumbs %}<nav class="mb-1 text-xs text-slate-500" aria-label="Breadcrumb"><a class="link" href="{% url 'purchases:list' %}">Purchases</a> / Receive goods</nav>{% endblock %}
+{% block content %}
+<form method="post" class="max-w-4xl space-y-4">{% csrf_token %}
+<div class="table-wrap"><table class="table"><thead><tr><th>Product</th><th class="num">Outstanding</th><th class="num">Receiving now</th>{% if po.business.business_type == "pharmacy" %}<th>Batch</th><th>Expiry</th>{% endif %}</tr></thead><tbody>
+{% for i in items %}<tr><td>{{ i.product.display_name }}</td><td class="num">{{ i.outstanding|qty }}</td><td class="num"><input class="input w-28 text-right" type="number" step="any" min="0" max="{{ i.outstanding }}" name="qty_{{ i.pk }}" value="{{ i.outstanding }}" {% if not i.outstanding %}disabled{% endif %}></td>
+{% if po.business.business_type == "pharmacy" or i.product.track_batches %}<td><input class="input w-32" name="batch_{{ i.pk }}"></td><td><input type="date" class="input w-40" name="expiry_{{ i.pk }}"></td>{% endif %}</tr>{% endfor %}</tbody></table></div>
+<div class="card card-body grid gap-4 sm:grid-cols-3"><div><label class="label">Received on</label><input type="date" class="input" name="received_on" value="{% now 'Y-m-d' %}"></div><div><label class="label">Supplier delivery note</label><input class="input" name="supplier_reference" maxlength="60"></div><div><label class="label">Notes</label><input class="input" name="notes" maxlength="300"></div></div>
+<div class="flex gap-2"><button class="btn-primary">Receive into stock</button><a class="btn-secondary" href="{% url 'purchases:detail' po.pk %}">Cancel</a></div></form>
+{% endblock %}

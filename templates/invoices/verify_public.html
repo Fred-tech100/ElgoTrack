@@ -1,0 +1,31 @@
+{% load static ui %}<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Document verification · ElgonNova</title><link rel="stylesheet" href="{% static 'css/app.css' %}"></head>
+<body class="min-h-screen bg-slate-50">
+<main class="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-10">
+  <div class="mb-6 flex items-center gap-2.5"><span class="flex h-8 w-8 items-center justify-center rounded bg-accent-500 text-sm font-bold text-white">E</span><span class="font-semibold text-brand-900">ElgonNova document check</span></div>
+  {% if not found %}
+  <div class="overflow-hidden rounded-lg border border-red-200 bg-white shadow-card">
+    <div class="flex items-center gap-3 bg-red-600 px-5 py-4 text-white"><svg class="h-7 w-7 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9 2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><div><p class="text-lg font-semibold">Not recognised</p><p class="text-sm text-red-100">Possible forgery</p></div></div>
+    <div class="space-y-2 p-5 text-sm text-slate-600"><p>No invoice or receipt matches this code. Do not accept the document as proof of purchase or payment.</p><p>If you typed the code, check it and try again. If you scanned a QR code, ask the business to issue the document again.</p></div></div>
+  {% else %}
+  <div class="overflow-hidden rounded-lg border bg-white shadow-card {% if d.status == 'genuine' %}border-emerald-200{% elif d.status == 'void' %}border-amber-300{% else %}border-red-200{% endif %}">
+    <div class="flex items-center gap-3 px-5 py-4 text-white {% if d.status == 'genuine' %}bg-emerald-600{% elif d.status == 'void' %}bg-amber-500{% else %}bg-red-600{% endif %}">
+      {% if d.status == "genuine" %}<svg class="h-7 w-7 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      {% else %}<svg class="h-7 w-7 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9 2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>{% endif %}
+      <div><p class="text-lg font-semibold">{% if d.status == "genuine" %}Genuine {{ d.kind }}{% elif d.status == "void" %}{{ d.kind|capfirst }} no longer valid{% else %}Record altered: do not trust{% endif %}</p><p class="text-sm opacity-90">Issued by {{ d.business }}</p></div></div>
+    <dl class="divide-y divide-slate-100 text-sm">
+      <div class="flex justify-between px-5 py-3"><dt class="text-slate-500">{{ d.kind|capfirst }} number</dt><dd class="font-semibold text-slate-900">{{ d.number }}</dd></div>
+      <div class="flex justify-between px-5 py-3"><dt class="text-slate-500">Date</dt><dd>{% if d.date_has_time %}{{ d.date|date:"d M Y, H:i" }}{% else %}{{ d.date|date:"d M Y" }}{% endif %}</dd></div>
+      <div class="flex justify-between px-5 py-3"><dt class="text-slate-500">{% if d.kind == "receipt" %}Amount received{% else %}Invoice total{% endif %}</dt><dd class="text-base font-semibold tabular-nums text-brand-900">{{ d.currency }} {{ d.amount|comma:d.decimals }}</dd></div>
+      {% if d.payment_status %}<div class="flex justify-between px-5 py-3"><dt class="text-slate-500">Payment status</dt><dd>{{ d.payment_status }}</dd></div>{% endif %}
+      {% if d.kind == "invoice" and d.paid != None %}<div class="flex justify-between px-5 py-3"><dt class="text-slate-500">Paid</dt><dd>{{ d.currency }} {{ d.paid|comma:d.decimals }}</dd></div><div class="flex justify-between px-5 py-3"><dt class="text-slate-500">Balance due</dt><dd>{{ d.currency }} {{ d.balance|comma:d.decimals }}</dd></div>{% endif %}
+      <div class="flex justify-between px-5 py-3"><dt class="text-slate-500">Customer</dt><dd>{{ d.customer_hint }}</dd></div>
+      <div class="flex justify-between px-5 py-3"><dt class="text-slate-500">Code</dt><dd class="font-mono">{{ d.short_code }}</dd></div>
+    </dl>
+    {% for w in d.warnings %}<p class="border-t border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-900">{{ w }}</p>{% endfor %}
+    {% if d.status == "tampered" %}<p class="border-t border-red-200 bg-red-50 px-5 py-3 text-sm text-red-800">The figures stored for this document no longer match its security signature. Contact the business.</p>{% endif %}
+  </div>
+  <p class="mt-4 text-sm text-slate-600">Compare the number, date and total above with the paper or PDF in your hand. If any differ, the document has been altered.</p>
+  {% endif %}
+</main></body></html>

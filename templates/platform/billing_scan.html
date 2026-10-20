@@ -1,0 +1,5 @@
+{% extends "platform/base.html" %}{% load static %}
+{% block title %}Verify ElgonNova document{% endblock %}{% block heading %}Verify an ElgonNova invoice or receipt{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">Scan an ElgonNova billing QR code or type its short code to confirm it is genuine and unaltered.</p>{% endblock %}
+{% block content %}{% include "invoices/_scanner.html" %}{% endblock %}
+{% block scripts %}<script src="{% static 'js/vendor/jsQR.js' %}"></script><script src="{% static 'js/scanner.js' %}" defer></script>{% endblock %}

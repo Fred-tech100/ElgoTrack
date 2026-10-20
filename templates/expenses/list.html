@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Expenses{% endblock %}{% block heading %}Expenses{% endblock %}
+{% block actions %}<a class="btn-secondary" href="{% url 'expenses:categories' %}">Categories</a>{% if user|has_perm_code:"expenses.create" %}<a class="btn-accent" href="{% url 'expenses:create' %}">Record expense</a>{% endif %}{% endblock %}
+{% block content %}
+<form class="filter-bar" method="get"><div class="grow"><label class="label">Search</label><input class="input" name="q" value="{{ request.GET.q }}"></div>
+<div><label class="label">Category</label><select class="input" name="category"><option value="">All</option>{% for c in categories %}<option value="{{ c.pk }}" {% if request.GET.category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+<div><label class="label">From</label><input type="date" class="input" name="start" value="{{ start|date:'Y-m-d' }}"></div><div><label class="label">To</label><input type="date" class="input" name="end" value="{{ end|date:'Y-m-d' }}"></div><button class="btn-primary">Filter</button></form>
+<p class="mb-3 text-sm text-slate-600">Total in this view: <strong class="text-brand-900">{% money total %}</strong></p>
+{% if object_list %}<div class="table-wrap"><table class="table"><thead><tr><th>Date</th><th>Number</th><th>Category</th><th>Description</th><th>Method</th><th class="num">Amount</th></tr></thead><tbody>
+{% for e in object_list %}<tr class="{% if e.status == 'void' %}text-slate-400 line-through{% endif %}"><td class="whitespace-nowrap">{{ e.expense_date|date:"d M Y" }}</td><td><a class="link" href="{% url 'expenses:detail' e.pk %}">{{ e.number }}</a></td><td>{{ e.category }}</td><td>{{ e.description }}</td><td>{{ e.method }}</td><td class="num">{% money e.amount %}</td></tr>{% endfor %}</tbody></table></div>{% include "components/pagination.html" %}
+{% else %}{% include "components/empty.html" with title="No expenses in this period" text="Record rent, transport, salaries and other running costs." url="/expenses/new/" action="Record expense" %}{% endif %}
+{% endblock %}

@@ -1,0 +1,5 @@
+{# horizontal bars: rows = reports.charts.hbars() #}
+{% load ui %}
+{% if rows %}<ul class="space-y-3">{% for r in rows %}<li><div class="mb-1 flex items-baseline justify-between gap-3 text-sm"><span class="truncate text-slate-800">{{ r.label }}</span><span class="shrink-0 tabular-nums font-medium text-slate-900">{% money r.value %}</span></div>
+<div class="h-2.5 overflow-hidden rounded-full bg-slate-100" role="presentation"><div class="h-full rounded-full" style="width:{{ r.pct }}%;background:{{ r.color }}"></div></div>{% if r.sub %}<p class="mt-0.5 text-xs text-slate-400">{{ r.sub }}</p>{% endif %}</li>{% endfor %}</ul>
+{% else %}<p class="py-10 text-center text-sm text-slate-500">{{ empty|default:"Nothing to show yet." }}</p>{% endif %}

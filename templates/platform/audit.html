@@ -1,0 +1,9 @@
+{% extends "platform/base.html" %}
+{% block title %}Security & audit{% endblock %}{% block heading %}Security & audit log{% endblock %}
+{% block content %}
+<form class="filter-bar" method="get"><div class="grow"><label class="label">Search</label><input class="input" name="q" value="{{ request.GET.q }}" placeholder="User, IP or message"></div>
+<div><label class="label">Action</label><select class="input" name="action"><option value="">All</option><option value="auth.login_failed" {% if request.GET.action == "auth.login_failed" %}selected{% endif %}>Failed sign-ins</option><option value="auth.login" {% if request.GET.action == "auth.login" %}selected{% endif %}>Sign-ins</option><option value="business" {% if request.GET.action == "business" %}selected{% endif %}>Business changes</option><option value="user" {% if request.GET.action == "user" %}selected{% endif %}>User changes</option></select></div><button class="btn-primary">Filter</button></form>
+<div class="table-wrap"><table class="table"><thead><tr><th>When</th><th>Action</th><th>Business</th><th>User</th><th>IP</th><th>Detail</th></tr></thead><tbody>
+{% for l in object_list %}<tr><td class="whitespace-nowrap text-xs text-slate-500">{{ l.created_at|date:"d M Y H:i" }}</td><td><span class="badge {% if 'failed' in l.action %}badge-danger{% else %}badge-neutral{% endif %}">{{ l.action }}</span></td><td>{{ l.business|default:"—" }}</td><td>{{ l.user_label|default:"—" }}</td><td class="text-xs">{{ l.ip_address|default:"—" }}</td><td class="text-slate-500">{{ l.message|default:l.object_repr }}</td></tr>{% endfor %}
+</tbody></table></div>{% include "components/pagination.html" %}
+{% endblock %}

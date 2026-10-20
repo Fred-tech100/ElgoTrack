@@ -1,0 +1,51 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Daily summary{% endblock %}{% block heading %}Daily summary{% endblock %}
+{% block breadcrumbs %}<nav class="mb-1 text-xs text-slate-500"><a class="link" href="{% url 'reports:index' %}">Reports</a> / Daily summary</nav>{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">{{ day|date:"l, j F Y" }}</p>{% endblock %}
+{% block actions %}<a class="btn-secondary btn-sm" href="?date={{ prev_day|date:'Y-m-d' }}">← Previous day</a>{% if next_day %}<a class="btn-secondary btn-sm" href="?date={{ next_day|date:'Y-m-d' }}">Next day →</a>{% endif %}
+<a class="btn-secondary btn-sm" href="{% url 'reports:run' 'daily-summary' %}?end={{ day|date:'Y-m-d' }}&export=pdf">PDF</a><a class="btn-secondary btn-sm" href="{% url 'reports:run' 'daily-summary' %}?end={{ day|date:'Y-m-d' }}&export=xlsx">Excel</a><a class="btn-secondary btn-sm" href="{% url 'reports:run' 'daily-summary' %}?end={{ day|date:'Y-m-d' }}&export=csv">CSV</a><button type="button" class="btn-secondary btn-sm" data-print>Print</button>{% endblock %}
+{% block content %}
+<form method="get" class="filter-bar no-print"><div><label class="label">Choose a day</label><input type="date" class="input" name="date" value="{{ day|date:'Y-m-d' }}" max="{% now 'Y-m-d' %}"></div><button class="btn-primary">Show</button></form>
+
+<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+  <div class="card card-body"><p class="stat-label">Net sales</p><p class="stat-value" style="color:#1c4a80">{% money d.sales.net %}</p><p class="mt-1 text-xs text-slate-500">{{ d.sales.count }} sale{{ d.sales.count|pluralize }}</p></div>
+  <div class="card card-body"><p class="stat-label">Money received</p><p class="stat-value" style="color:#059669">{% money d.cash.in %}</p></div>
+  <div class="card card-body"><p class="stat-label">Expenses</p><p class="stat-value" style="color:#e8731a">{% money d.expenses.total %}</p><p class="mt-1 text-xs text-slate-500">{{ d.expenses.count }} recorded</p></div>
+  <div class="card card-body"><p class="stat-label">Net cash movement</p><p class="stat-value {% if d.cash.net < 0 %}text-red-600{% endif %}">{% money d.cash.net %}</p></div>
+</div>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-3">
+  <div class="card lg:col-span-2"><div class="card-header"><h2 class="card-title">Sales by hour</h2></div><div class="card-body">{% include "reports/charts/bars.html" with chart=hours title="Sales by hour of the day" empty="No sales on this day." %}</div></div>
+  <div class="card"><div class="card-header"><h2 class="card-title">Money received by method</h2></div><div class="card-body">{% include "reports/charts/donut.html" with donut=mix title="Money received by payment method" empty="No money received on this day." %}</div></div>
+</div>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-2">
+<div class="card"><div class="card-header"><h2 class="card-title">Sales and returns</h2></div><table class="table"><tbody>
+<tr><td>Sales made</td><td class="num">{{ d.sales.count }}</td></tr><tr><td>Sales value (before discounts)</td><td class="num">{% money d.sales.gross %}</td></tr><tr><td>Discounts given</td><td class="num">− {% money d.sales.discounts %}</td></tr>
+<tr><td>Returns accepted</td><td class="num">− {% money d.sales.returns %}</td></tr><tr class="font-semibold"><td>Net sales (excl. tax)</td><td class="num">{% money d.sales.net %}</td></tr>
+<tr><td>Cost of goods sold</td><td class="num">− {% money d.sales.cogs %}</td></tr><tr class="bg-brand-50 font-semibold text-brand-900"><td>Gross profit</td><td class="num">{% money d.sales.profit %}</td></tr>
+<tr><td>Tax collected</td><td class="num">{% money d.sales.tax %}</td></tr><tr><td>Still unpaid on today's sales</td><td class="num {% if d.sales.unpaid %}text-amber-700{% endif %}">{% money d.sales.unpaid %}</td></tr>
+<tr><td>Sales cancelled</td><td class="num">{{ d.sales.cancelled }} ({% money d.sales.cancelled_value %})</td></tr></tbody></table></div>
+
+<div class="card"><div class="card-header"><h2 class="card-title">Cash position</h2></div><table class="table"><tbody>
+{% for m in d.cash.by_method %}<tr><td>{{ m.method__name }} <span class="text-xs text-slate-400">({{ m.n }})</span></td><td class="num">{% money m.total %}</td></tr>{% endfor %}
+<tr class="font-semibold"><td>Total received</td><td class="num">{% money d.cash.in %}</td></tr><tr><td class="pl-6 text-slate-500">of which on older credit / account</td><td class="num text-slate-500">{% money d.cash.on_account %}</td></tr>
+<tr><td>Customer refunds</td><td class="num">− {% money d.cash.refunds %}</td></tr><tr><td>Paid to suppliers</td><td class="num">− {% money d.cash.supplier_paid %}</td></tr><tr><td>Expenses</td><td class="num">− {% money d.cash.expenses %}</td></tr>
+<tr class="bg-brand-50 font-semibold text-brand-900"><td>Net cash movement</td><td class="num">{% money d.cash.net %}</td></tr></tbody></table></div>
+
+<div class="card"><div class="card-header"><h2 class="card-title">Purchases and stock</h2></div><table class="table"><tbody>
+<tr><td>Goods received from suppliers</td><td class="num">{% money d.purchases.received %}</td></tr><tr><td>Returned to suppliers</td><td class="num">{% money d.purchases.returned %}</td></tr>
+<tr><td>Stock movements recorded</td><td class="num">{{ d.stock.movements }}</td></tr><tr><td>Units written off (damage / loss)</td><td class="num">{{ d.stock.written_off|qty }}</td></tr>
+<tr><td>Stock value now (at cost)</td><td class="num">{% money d.stock.value %}</td></tr>
+<tr><td>Low stock products</td><td class="num {% if d.stock.low %}text-amber-700{% endif %}">{{ d.stock.low }}</td></tr><tr><td>Out of stock products</td><td class="num {% if d.stock.out %}text-red-600{% endif %}">{{ d.stock.out }}</td></tr></tbody></table></div>
+
+<div class="card"><div class="card-header"><h2 class="card-title">Customer and supplier accounts</h2></div><table class="table"><tbody>
+<tr><td>Customers owe you</td><td class="num">{% money d.balances.receivables %}</td></tr><tr><td>Overdue customer balances</td><td class="num {% if d.balances.overdue_count %}text-red-600{% endif %}">{% money d.balances.overdue_value %} <span class="text-xs text-slate-400">({{ d.balances.overdue_count }})</span></td></tr>
+<tr><td>You owe suppliers</td><td class="num">{% money d.balances.payables %}</td></tr></tbody></table>
+<p class="border-t border-slate-100 px-4 py-2 text-xs text-slate-500">Balances are as they stand now, not at the end of the chosen day.</p></div>
+
+<div class="card"><div class="card-header"><h2 class="card-title">Best sellers</h2></div><div class="card-body">{% include "reports/charts/hbars.html" with rows=top_bars empty="No sales on this day." %}</div></div>
+<div class="card"><div class="card-header"><h2 class="card-title">Expenses by category</h2></div><div class="card-body">{% include "reports/charts/hbars.html" with rows=expense_bars empty="No expenses on this day." %}</div></div>
+</div>
+{% include "reports/charts/legend.html" %}
+{% endblock %}

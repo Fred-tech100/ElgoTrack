@@ -1,0 +1,15 @@
+{% extends "platform/base.html" %}{% load ui %}
+{% block title %}{{ obj.name }}{% endblock %}{% block heading %}{{ obj.name }} {% badge obj.status %}{% endblock %}
+{% block actions %}
+{% if obj.status == "pending" %}<form method="post" action="{% url 'platform:business_action' obj.pk 'approve' %}">{% csrf_token %}<button class="btn-primary">Approve</button></form>{% endif %}
+{% if obj.status == "active" %}<form method="post" data-confirm="Suspend {{ obj.name }}? Its users will lose access immediately." action="{% url 'platform:business_action' obj.pk 'suspend' %}">{% csrf_token %}<button class="btn-danger">Suspend</button></form>{% endif %}
+{% if obj.status == "suspended" %}<form method="post" action="{% url 'platform:business_action' obj.pk 'reactivate' %}">{% csrf_token %}<button class="btn-primary">Reactivate</button></form>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="grid gap-4 lg:grid-cols-3">
+<div class="card card-body"><p class="stat-label">Details</p><dl class="mt-2 space-y-1 text-sm"><div>{{ obj.get_business_type_display }}</div><div>{{ obj.email|default:"No email" }}</div><div>{{ obj.phone|default:"No phone" }}</div><div class="text-slate-500">Created {{ obj.created_at|date:"d M Y" }}</div></dl></div>
+<div class="card card-body"><p class="stat-label">Products</p><p class="stat-value">{{ product_count }}</p></div>
+<div class="card card-body"><p class="stat-label">Sales</p><p class="stat-value">{{ sale_count }}</p></div></div>
+<div class="card mt-6"><div class="card-header"><h2 class="card-title">Users</h2></div><div class="table-wrap border-0 shadow-none"><table class="table"><tbody>{% for u in users %}<tr><td>{{ u.full_name }}</td><td>{{ u.email }}</td><td>{{ u.role.name }}</td><td>{% if u.is_active %}{% badge "active" %}{% else %}{% badge "void" "Inactive" %}{% endif %}</td></tr>{% endfor %}</tbody></table></div></div>
+<div class="card mt-6"><div class="card-header"><h2 class="card-title">Recent activity</h2></div><div class="table-wrap border-0 shadow-none"><table class="table"><tbody>{% for l in logs %}<tr><td class="whitespace-nowrap text-xs text-slate-500">{{ l.created_at|date:"d M H:i" }}</td><td>{{ l.action }}</td><td>{{ l.object_repr }}</td><td class="text-slate-500">{{ l.user_label }}</td></tr>{% empty %}<tr><td class="py-6 text-center text-slate-500">No activity yet.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Edit product{% else %}New product{% endif %}{% endblock %}{% block heading %}{% if object %}Edit {{ object.display_name }}{% else %}New product{% endif %}{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="max-w-4xl space-y-5" novalidate>{% csrf_token %}
+{% if form.non_field_errors %}<div class="alert-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+<div class="card"><div class="card-header"><h2 class="card-title">Identity</h2></div><div class="card-body grid gap-4 sm:grid-cols-2">
+<div class="sm:col-span-2">{% include "components/field.html" with field=form.name %}</div>
+<div>{% include "components/field.html" with field=form.sku %}</div><div>{% include "components/field.html" with field=form.barcode %}</div>
+<div>{% include "components/field.html" with field=form.category %}</div><div>{% include "components/field.html" with field=form.brand %}</div>
+<div>{% include "components/field.html" with field=form.variant_of %}</div><div>{% include "components/field.html" with field=form.variant_label %}</div>
+<div class="sm:col-span-2">{% include "components/field.html" with field=form.description %}</div>
+<div>{% include "components/field.html" with field=form.image %}</div></div></div>
+<div class="card"><div class="card-header"><h2 class="card-title">Pricing</h2></div><div class="card-body grid gap-4 sm:grid-cols-3">
+<div>{% include "components/field.html" with field=form.purchase_price %}</div><div>{% include "components/field.html" with field=form.selling_price %}</div><div>{% include "components/field.html" with field=form.wholesale_price %}</div>
+<div>{% include "components/field.html" with field=form.is_taxable %}</div><div>{% include "components/field.html" with field=form.tax_rate %}</div></div></div>
+<div class="card"><div class="card-header"><h2 class="card-title">Stock</h2></div><div class="card-body grid gap-4 sm:grid-cols-3">
+<div>{% include "components/field.html" with field=form.unit %}</div><div>{% include "components/field.html" with field=form.min_stock_level %}</div><div>{% include "components/field.html" with field=form.reorder_level %}</div>
+<div>{% include "components/field.html" with field=form.supplier %}</div>{% if form.opening_quantity %}<div>{% include "components/field.html" with field=form.opening_quantity %}</div>{% endif %}
+<div>{% include "components/field.html" with field=form.track_batches %}</div><div>{% include "components/field.html" with field=form.is_active %}</div></div></div>
+<div class="flex gap-2"><button class="btn-primary">Save product</button><a class="btn-secondary" href="{% url 'products:list' %}">Cancel</a></div></form>
+{% endblock %}

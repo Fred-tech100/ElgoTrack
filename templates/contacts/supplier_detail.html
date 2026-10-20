@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}{{ object.name }}{% endblock %}{% block heading %}{{ object.name }}{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">{{ object.code }}{% if object.contact_person %} · {{ object.contact_person }}{% endif %}{% if object.phone %} · {{ object.phone }}{% endif %}</p>{% endblock %}
+{% block actions %}{% if user|has_perm_code:"purchases.create" %}<a class="btn-secondary" href="{% url 'purchases:create' %}?supplier={{ object.pk }}">New purchase</a>{% endif %}{% if user|has_perm_code:"payments.pay_supplier" %}<a class="btn-accent" href="{% url 'payments:supplier_payment' %}?supplier={{ object.pk }}">Pay supplier</a>{% endif %}{% if user|has_perm_code:"contacts.manage" %}<a class="btn-secondary" href="{% url 'suppliers:edit' object.pk %}">Edit</a>{% endif %}{% endblock %}
+{% block breadcrumbs %}<nav class="mb-1 text-xs text-slate-500" aria-label="Breadcrumb"><a class="link" href="{% url 'suppliers:list' %}">Suppliers</a> / {{ object.name }}</nav>{% endblock %}
+{% block content %}
+<div class="mb-4 grid gap-3 sm:grid-cols-2"><div class="card card-body"><p class="stat-label">We owe this supplier</p><p class="stat-value {% if object.balance > 0 %}text-red-600{% endif %}">{% money object.balance %}</p></div>
+<div class="card card-body"><p class="stat-label">Payment terms</p><p class="stat-value">{{ object.payment_terms_days }} days</p></div></div>
+{% if purchases %}<div class="card mb-6"><div class="card-header"><h2 class="card-title">Recent purchases</h2></div><table class="table"><tbody>{% for p in purchases %}<tr><td><a class="link" href="{% url 'purchases:detail' p.pk %}">{{ p.number }}</a></td><td>{{ p.order_date|date:"d M Y" }}</td><td>{% badge p.status p.get_status_display %}</td><td class="num">{% money p.received_value %}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+<h2 class="mb-2 text-sm font-semibold text-brand-900">Statement</h2>
+{% url 'suppliers:statement_pdf' object.pk as pdf_url %}{% include "contacts/_statement.html" %}
+{% endblock %}

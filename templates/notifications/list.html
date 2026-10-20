@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Notifications{% endblock %}{% block heading %}Notifications{% endblock %}
+{% block actions %}<form method="post" action="{% url 'notifications:read_all' %}">{% csrf_token %}<button class="btn-secondary">Mark all as read</button></form>{% endblock %}
+{% block content %}
+{% if object_list %}<div class="card"><ul class="divide-y divide-slate-100">
+{% for n in object_list %}<li class="flex items-start justify-between gap-3 px-4 py-3 {% if n.pk not in read_ids %}bg-brand-50/40{% endif %}">
+<div class="flex gap-3"><span class="mt-1.5 h-2 w-2 shrink-0 rounded-full {% if n.severity == 'danger' %}bg-red-500{% elif n.severity == 'warning' %}bg-accent-500{% else %}bg-brand-500{% endif %}"></span>
+<div><p class="font-medium text-slate-900">{{ n.title }}</p>{% if n.body %}<p class="text-sm text-slate-500">{{ n.body }}</p>{% endif %}<p class="mt-0.5 text-xs text-slate-400">{{ n.get_kind_display }} · {{ n.updated_at|date:"d M H:i" }}</p></div></div>
+<div class="flex shrink-0 gap-2">{% if n.url %}<form method="post" action="{% url 'notifications:read' n.pk %}">{% csrf_token %}<input type="hidden" name="go" value="{{ n.url }}"><button class="btn-secondary btn-sm">Open</button></form>{% endif %}
+{% if n.pk not in read_ids %}<form method="post" action="{% url 'notifications:read' n.pk %}">{% csrf_token %}<button class="btn-ghost btn-sm">Mark read</button></form>{% endif %}</div></li>{% endfor %}</ul></div>{% include "components/pagination.html" %}
+{% else %}{% include "components/empty.html" with title="You are all caught up" text="Low stock, overdue credit, supplier payments and stock counts that need attention will appear here." %}{% endif %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "emails/base.html" %}
+{% block title %}{{ heading_text }}{% endblock %}
+{% block heading %}{{ heading_text }}{% endblock %}
+{% block content %}
+<p style="margin:0 0 8px;font-size:15px;line-height:1.65;">{{ business_name }}</p>
+<p style="margin:0 0 10px;font-size:15px;line-height:1.65;"><strong>{{ title }}</strong></p>
+{% if body %}<p style="margin:0;font-size:14px;line-height:1.65;color:#475569;">{{ body }}</p>{% endif %}
+{% if detail_rows %}
+<table role="presentation" width="100%" cellspacing="0" cellpadding="8" border="0" style="margin-top:14px;border-collapse:collapse;font-size:13px;">
+{% for label, value in detail_rows %}<tr><td style="border-bottom:1px solid #e2e8f0;color:#64748b;">{{ label }}</td><td align="right" style="border-bottom:1px solid #e2e8f0;color:#253247;font-weight:bold;">{{ value }}</td></tr>{% endfor %}
+</table>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,5 @@
+Hi {{ first_name }},
+
+{{ message }}
+
+If you did not expect this change, contact {{ support_email }}.

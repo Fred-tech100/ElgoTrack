@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block heading %}{{ title }}{% endblock %}
+{% block subtitle %}{% if intro %}<p class="mt-1 text-sm text-slate-500">{{ intro }}</p>{% endif %}{% endblock %}
+{% block content %}
+<form method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} class="card max-w-3xl" novalidate>
+  {% csrf_token %}
+  <div class="card-body space-y-4">
+    {% if form.non_field_errors %}<div class="alert-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+    <div class="grid gap-4 sm:grid-cols-2">
+      {% for field in form.visible_fields %}
+        <div class="{% if field.name == 'description' or field.name == 'address' or field.name == 'notes' %}sm:col-span-2{% endif %}">{% include "components/field.html" %}</div>
+      {% endfor %}
+    </div>
+    {% for h in form.hidden_fields %}{{ h }}{% endfor %}
+  </div>
+  <div class="flex items-center justify-end gap-2 border-t border-slate-200 bg-slate-50 px-4 py-3">
+    {% if cancel_url %}<a href="{{ cancel_url }}" class="btn-secondary">Cancel</a>{% endif %}
+    <button type="submit" class="btn-primary">{{ submit_label|default:"Save" }}</button>
+  </div>
+</form>
+{% endblock %}

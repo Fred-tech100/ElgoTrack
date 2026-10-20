@@ -1,0 +1,20 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}{{ object.display_name }}{% endblock %}{% block heading %}{{ object.display_name }}{% if not object.is_active %} {% badge "void" "Inactive" %}{% endif %}{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">SKU {{ object.sku }}{% if object.barcode %} · Barcode {{ object.barcode }}{% endif %}</p>{% endblock %}
+{% block actions %}{% if user|has_perm_code:"inventory.view" %}<a class="btn-secondary" href="{% url 'inventory:ledger' object.pk %}">Stock history</a>{% endif %}{% if user|has_perm_code:"inventory.adjust" %}<a class="btn-secondary" href="{% url 'inventory:adjust' %}?product={{ object.pk }}">Adjust stock</a>{% endif %}{% if user|has_perm_code:"products.manage" %}<a class="btn-primary" href="{% url 'products:edit' object.pk %}">Edit</a>{% endif %}{% endblock %}
+{% block breadcrumbs %}<nav class="mb-1 text-xs text-slate-500" aria-label="Breadcrumb"><a class="link" href="{% url 'products:list' %}">Products</a> / {{ object.display_name }}</nav>{% endblock %}
+{% block content %}
+<div class="grid gap-3 sm:grid-cols-4">
+<div class="card card-body"><p class="stat-label">In stock</p><p class="stat-value">{{ object.stock.quantity|qty }} <span class="text-sm font-normal text-slate-500">{{ object.unit }}</span></p></div>
+<div class="card card-body"><p class="stat-label">Selling price</p><p class="stat-value">{% money object.selling_price %}</p></div>
+<div class="card card-body"><p class="stat-label">Cost price</p><p class="stat-value">{% money object.purchase_price %}</p></div>
+<div class="card card-body"><p class="stat-label">Reorder level</p><p class="stat-value">{{ object.reorder_level|qty }}</p></div></div>
+<div class="mt-6 grid gap-6 lg:grid-cols-3"><div class="card card-body lg:col-span-1"><dl class="space-y-2 text-sm">
+<div><dt class="stat-label">Category</dt><dd>{{ object.category|default:"—" }}</dd></div><div><dt class="stat-label">Brand</dt><dd>{{ object.brand|default:"—" }}</dd></div>
+<div><dt class="stat-label">Supplier</dt><dd>{{ object.supplier|default:"—" }}</dd></div><div><dt class="stat-label">Wholesale price</dt><dd>{% if object.wholesale_price is not None %}{% money object.wholesale_price %}{% else %}—{% endif %}</dd></div>
+<div><dt class="stat-label">Tax</dt><dd>{% if object.is_taxable %}Taxable{% else %}Not taxable{% endif %}</dd></div>
+{% if object.description %}<div><dt class="stat-label">Description</dt><dd>{{ object.description }}</dd></div>{% endif %}
+{% if variants %}<div><dt class="stat-label">Variants</dt>{% for v in variants %}<dd><a class="link" href="{% url 'products:detail' v.pk %}">{{ v.display_name }}</a></dd>{% endfor %}</div>{% endif %}</dl></div>
+<div class="card lg:col-span-2"><div class="card-header"><h2 class="card-title">Recent stock movements</h2></div><div class="table-wrap border-0 shadow-none"><table class="table"><tbody>
+{% for m in movements %}<tr><td class="whitespace-nowrap text-xs text-slate-500">{{ m.created_at|date:"d M H:i" }}</td><td>{{ m.get_movement_type_display }}</td><td class="num {% if m.quantity < 0 %}text-red-600{% else %}text-emerald-700{% endif %}">{{ m.quantity|qty }}</td><td class="num text-slate-500">→ {{ m.balance_after|qty }}</td><td class="text-xs text-slate-500">{{ m.source_ref }}</td></tr>{% empty %}<tr><td class="py-8 text-center text-slate-500">No movements yet.</td></tr>{% endfor %}</tbody></table></div></div></div>
+{% endblock %}

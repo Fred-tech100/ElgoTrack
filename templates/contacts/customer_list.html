@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Customers{% endblock %}{% block heading %}Customers{% endblock %}
+{% block actions %}{% if user|has_perm_code:"payments.receive" %}<a class="btn-secondary" href="{% url 'payments:customer_payment' %}">Receive payment</a>{% endif %}{% if user|has_perm_code:"contacts.manage" %}<a class="btn-accent" href="{% url 'customers:create' %}">Add customer</a>{% endif %}{% endblock %}
+{% block content %}
+<form class="filter-bar" method="get"><div class="grow"><label class="label">Search</label><input class="input" name="q" value="{{ request.GET.q }}" placeholder="Name, phone, code or email"></div><label class="flex items-center gap-2 pb-2 text-sm"><input type="checkbox" name="owing" value="1" {% if request.GET.owing %}checked{% endif %}> Owing money</label><button class="btn-primary">Filter</button></form>
+{% if object_list %}<div class="table-wrap"><table class="table"><thead><tr><th>Customer</th><th>Phone</th><th>Type</th><th class="num">Balance</th></tr></thead><tbody>
+{% for c in object_list %}<tr><td><a class="link" href="{% url 'customers:detail' c.pk %}">{{ c.name }}</a><div class="text-xs text-slate-400">{{ c.code }}</div></td><td>{{ c.phone|default:"—" }}</td><td>{{ c.get_customer_type_display }}</td><td class="num {% if c.bal > 0 %}font-medium text-red-600{% endif %}">{% money c.bal %}</td></tr>{% endfor %}</tbody></table></div>{% include "components/pagination.html" %}
+{% else %}{% include "components/empty.html" with title="No customers yet" text="Walk-in sales do not need a customer. Add customers to track credit and history." url="/customers/new/" action="Add customer" %}{% endif %}
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% load ui static %}
+{% block title %}Custom report builder{% endblock %}{% block heading %}Custom report builder{% endblock %}
+{% block breadcrumbs %}<nav class="mb-1 text-xs text-slate-500"><a class="link" href="{% url 'reports:index' %}">Reports</a> / Builder</nav>{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">Choose the data, narrow it down and optionally group it. No developer needed.</p>{% endblock %}
+{% block content %}
+<form method="get" class="card card-body no-print space-y-4" id="builder-form">
+  <div class="flex flex-wrap items-end gap-3">
+    <div><label class="label">Data</label><select class="input" name="dataset" id="dataset" required><option value="">Choose…</option>{% for v, l in datasets %}{% if v == "payments" or v == "expenses" %}{% if user|has_perm_code:"finance.view" %}<option value="{{ v }}" {% if dataset == v %}selected{% endif %}>{{ l }}</option>{% endif %}{% else %}<option value="{{ v }}" {% if dataset == v %}selected{% endif %}>{{ l }}</option>{% endif %}{% endfor %}</select></div>
+    <div><label class="label">Group by</label><select class="input" name="group_by" id="group_by"><option value="">No grouping (list rows)</option>{% for d, gs in groups.items %}{% for g in gs %}<option value="{{ g }}" data-dataset="{{ d }}" {% if f.group_by == g and dataset == d %}selected{% endif %}>{{ g|capfirst }}</option>{% endfor %}{% endfor %}</select></div>
+    <div><label class="label">Quick range</label><select class="input" name="days"><option value="">Custom dates</option><option value="7" {% if request.GET.days == "7" %}selected{% endif %}>Last 7 days</option><option value="30" {% if request.GET.days == "30" %}selected{% endif %}>Last 30 days</option><option value="90" {% if request.GET.days == "90" %}selected{% endif %}>Last 90 days</option><option value="365" {% if request.GET.days == "365" %}selected{% endif %}>Last 12 months</option></select></div>
+  </div>
+  {% include "reports/_filters.html" %}
+  <p class="help">Filters that do not apply to the chosen data are ignored (for example supplier on sales).</p>
+  <div><button class="btn-primary">Run report</button></div>
+</form>
+{% if result %}
+<div class="mt-6">{% include "reports/_result.html" %}</div>
+<form method="post" class="card card-body no-print mt-6 flex max-w-xl flex-wrap items-end gap-3">{% csrf_token %}
+  {% for k, v in request.GET.items %}{% if k != "start" and k != "end" and k != "export" and v %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endif %}{% endfor %}
+  <div class="grow"><label class="label">Save this report as</label><input class="input" name="name" maxlength="80" placeholder="e.g. Monthly cement sales" required></div><button class="btn-secondary">Save</button></form>
+{% endif %}
+{% if saved %}<div class="card mt-6 max-w-xl no-print"><div class="card-header"><h2 class="card-title">Saved reports</h2></div><ul class="divide-y divide-slate-100">{% for s in saved %}<li class="flex items-center justify-between px-4 py-2.5"><a class="link" href="{% url 'reports:saved' s.pk %}">{{ s.name }}</a><form method="post" action="{% url 'reports:saved' s.pk %}" data-confirm="Remove this saved report?">{% csrf_token %}<button class="link text-xs text-red-600">Remove</button></form></li>{% endfor %}</ul></div>{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/builder.js' %}" defer></script>{% endblock %}

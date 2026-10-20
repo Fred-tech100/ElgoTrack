@@ -1,0 +1,69 @@
+{% load static ui %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Dashboard{% endblock %} · {% if business %}{{ business.name }}{% else %}ElgonNova{% endif %}</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="min-h-screen">
+<div class="no-print fixed inset-0 z-30 hidden bg-slate-900/50 lg:hidden" id="nav-backdrop"></div>
+<aside id="sidebar" class="sidebar no-print z-40 flex w-64 -translate-x-full flex-col bg-brand-900 transition-transform lg:translate-x-0">
+  <div class="flex h-14 shrink-0 items-center gap-2.5 border-b border-brand-800 px-4">
+    {% if business and business.logo %}<img src="{{ business.logo.url }}" alt="" class="h-8 w-8 rounded bg-white object-contain p-0.5">
+    {% else %}<img src="{% static 'images/landing/logo.jpeg' %}" alt="ElgoTrack" class="h-8 w-8 rounded bg-white object-contain p-0.5">{% endif %}
+    <div class="min-w-0"><p class="truncate text-sm font-semibold text-white">{% if business %}{{ business.name }}{% else %}ElgonNova Platform{% endif %}</p>
+    <p class="truncate text-[11px] text-brand-300">{% if business %}{{ user.role.name|default:"Member" }}{% else %}Super administrator{% endif %}</p></div>
+  </div>
+  <nav class="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-6">
+    {% block nav %}
+    {% for group in nav_groups %}
+      <p class="nav-group">{{ group.title }}</p>
+      {% for item in group.items %}<a href="{% url item.url %}" class="nav-link {% if item.active %}nav-link-active{% endif %}">{{ item.label }}</a>{% endfor %}
+    {% endfor %}
+    {% endblock %}
+  </nav>
+  <div class="shrink-0 border-t border-brand-800 p-3">
+    <p class="truncate px-2 text-xs text-brand-200">{{ user.full_name|default:user.email }}</p>
+    <div class="mt-1 flex items-center gap-1 px-1">
+      <a href="{% url 'accounts:security' %}" class="rounded px-2 py-1 text-xs text-brand-300 hover:bg-brand-800 hover:text-white">Security</a>
+      <a href="{% url 'accounts:password_change' %}" class="rounded px-2 py-1 text-xs text-brand-300 hover:bg-brand-800 hover:text-white">Password</a>
+      <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="rounded px-2 py-1 text-xs text-brand-300 hover:bg-brand-800 hover:text-white">Sign out</button></form>
+    </div>
+  </div>
+</aside>
+
+<div class="lg:pl-64">
+  <header class="no-print sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-slate-200 bg-white px-4 lg:px-8">
+    <button id="nav-toggle" class="rounded-md p-2 text-brand-800 hover:bg-slate-100 lg:hidden" aria-label="Open menu">
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    {% if business %}
+    <form action="{% url 'core:search' %}" method="get" role="search" class="min-w-0 flex-1 max-w-md">
+      <label for="global-search" class="sr-only">Search</label>
+      <input id="global-search" name="q" type="search" autocomplete="off" placeholder="Search products, customers, invoices…  ( / )" class="input h-9 bg-slate-50">
+    </form>
+    <a href="{% url 'notifications:list' %}" class="relative ml-auto rounded-md p-2 text-brand-800 hover:bg-slate-100" aria-label="Notifications">
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/></svg>
+      {% if unread_notifications %}<span class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-500 px-1 text-[10px] font-semibold text-white">{{ unread_notifications }}</span>{% endif %}
+    </a>
+    {% else %}<span class="truncate text-sm font-semibold text-brand-900">ElgonNova Platform</span>{% endif %}
+  </header>
+  <main class="mx-auto max-w-7xl px-4 py-6 lg:px-8">
+    {% if messages %}<div class="no-print mb-4 space-y-2">{% for m in messages %}<div class="alert-{% if m.tags == 'error' %}error{% elif m.tags == 'warning' %}warning{% elif m.tags == 'info' %}info{% else %}success{% endif %}">{{ m }}</div>{% endfor %}</div>{% endif %}
+    <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
+      <div>
+        {% block breadcrumbs %}{% endblock %}
+        <h1 class="text-xl font-semibold tracking-tight">{% block heading %}{% block title_h %}{% endblock %}{% endblock %}</h1>
+        {% block subtitle %}{% endblock %}
+      </div>
+      <div class="no-print flex flex-wrap items-center gap-2">{% block actions %}{% endblock %}</div>
+    </div>
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<script src="{% static 'js/app.js' %}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

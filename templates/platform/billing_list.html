@@ -1,0 +1,11 @@
+{% extends "platform/base.html" %}{% load ui %}
+{% block title %}ElgonNova invoices{% endblock %}{% block heading %}ElgonNova invoices{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">Issue invoices to ElgoTrack businesses and external clients for subscriptions, development, software and other services.</p>{% endblock %}
+{% block actions %}<a class="btn-secondary" href="{% url 'verify:platform_scan' %}">Scan to verify</a><a class="btn-accent" href="{% url 'platform:invoice_create' %}">Create invoice</a>{% endblock %}
+{% block content %}
+<form class="filter-bar" method="get"><div class="grow"><label class="label" for="billing-search">Search</label><input id="billing-search" class="input" name="q" value="{{ request.GET.q }}" placeholder="Invoice, client, or business"></div><button class="btn-primary">Search</button></form>
+<div class="table-wrap"><table class="table"><thead><tr><th>Invoice</th><th>Client</th><th>Issued</th><th>Due</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>
+{% for invoice in invoices %}<tr><td class="font-medium">{{ invoice.number }}</td><td>{{ invoice.client_name }}{% if invoice.business %}<span class="block text-xs text-slate-500">ElgoTrack business</span>{% endif %}</td><td>{{ invoice.issue_date|date:"d M Y" }}</td><td>{{ invoice.due_date|date:"d M Y"|default:"-" }}</td><td>{% platform_money invoice invoice.total %}</td><td>{% badge invoice.payment_status %}</td><td class="text-right"><a class="link" href="{% url 'platform:invoice_detail' invoice.pk %}">Open</a></td></tr>
+{% empty %}<tr><td colspan="7" class="py-10 text-center text-slate-500">No ElgonNova invoices yet.</td></tr>{% endfor %}</tbody></table></div>
+{% include "components/pagination.html" %}
+{% endblock %}

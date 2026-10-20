@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Payment methods{% endblock %}{% block heading %}Payment methods{% endblock %}
+{% block actions %}<a class="btn-accent" href="{% url 'payments:method_create' %}">Add method</a>{% endblock %}
+{% block content %}<div class="table-wrap max-w-2xl"><table class="table"><tbody>{% for m in object_list %}<tr><td class="font-medium">{{ m.name }}</td><td>{% if m.is_active %}{% badge "active" %}{% else %}{% badge "void" "Inactive" %}{% endif %}</td><td class="text-right"><a class="link" href="{% url 'payments:method_edit' m.pk %}">Edit</a></td></tr>{% endfor %}</tbody></table></div>{% endblock %}

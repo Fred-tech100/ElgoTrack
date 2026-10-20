@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ role.name }}{% endblock %}{% block heading %}{{ role.name }} permissions{% endblock %}
+{% block content %}
+{% if role.is_owner %}<div class="alert-info mb-4">The owner role always has every permission and cannot be edited.</div>{% endif %}
+<form method="post">{% csrf_token %}
+<div class="grid gap-4 md:grid-cols-2">
+{% for group, items in groups %}<div class="card"><div class="card-header"><h2 class="card-title">{{ group }}</h2></div><div class="card-body space-y-2.5">
+{% for code, label in items %}<label class="flex items-start gap-2 text-sm"><input type="checkbox" name="codes" value="{{ code }}" class="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-700" {% if code in granted %}checked{% endif %} {% if role.is_owner %}disabled{% endif %}><span>{{ label }}</span></label>{% endfor %}
+</div></div>{% endfor %}</div>
+{% if not role.is_owner %}<div class="mt-5 flex gap-2"><button class="btn-primary">Save permissions</button><a href="{% url 'accounts:roles' %}" class="btn-secondary">Cancel</a></div>{% endif %}
+</form>{% endblock %}

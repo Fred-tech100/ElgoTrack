@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Return to supplier{% endblock %}{% block heading %}Return goods from {{ po.number }}{% endblock %}
+{% block content %}
+<form method="post" class="max-w-3xl space-y-4">{% csrf_token %}
+<div class="table-wrap"><table class="table"><thead><tr><th>Product</th><th class="num">Received</th><th class="num">Can return</th><th class="num">Return qty</th></tr></thead><tbody>
+{% for item, available in rows %}<tr><td>{{ item.product.display_name }}</td><td class="num">{{ item.quantity_received|qty }}</td><td class="num">{{ available|qty }}</td><td class="num"><input class="input w-24 text-right" type="number" step="any" min="0" max="{{ available }}" name="qty_{{ item.pk }}" value="0" {% if not available %}disabled{% endif %}></td></tr>{% endfor %}</tbody></table></div>
+<div class="card card-body"><label class="label">Reason</label><input class="input" name="reason" required maxlength="300"></div>
+<div class="flex gap-2"><button class="btn-primary">Record return</button><a class="btn-secondary" href="{% url 'purchases:detail' po.pk %}">Cancel</a></div></form>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Stock counts{% endblock %}{% block heading %}Stock counts{% endblock %}
+{% block actions %}{% if user|has_perm_code:"inventory.count" %}<a class="btn-accent" href="{% url 'inventory:count_start' %}">Start a count</a>{% endif %}{% endblock %}
+{% block content %}
+{% if object_list %}<div class="table-wrap"><table class="table"><thead><tr><th>Count</th><th>Scope</th><th>Started</th><th>By</th><th>Status</th></tr></thead><tbody>
+{% for c in object_list %}<tr><td><a class="link" href="{% url 'inventory:count_detail' c.pk %}">{{ c.number }}</a></td><td>{{ c.category|default:"All products" }}</td><td>{{ c.created_at|date:"d M Y H:i" }}</td><td>{{ c.started_by }}</td><td>{% badge c.status c.get_status_display %}</td></tr>{% endfor %}</tbody></table></div>{% include "components/pagination.html" %}
+{% else %}{% include "components/empty.html" with title="No stock counts yet" text="Count your shelves and let the system show the difference from what it expects." url="/inventory/counts/new/" action="Start a count" %}{% endif %}
+{% endblock %}

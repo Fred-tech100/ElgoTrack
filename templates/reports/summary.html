@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Financial summary{% endblock %}{% block heading %}Financial summary{% endblock %}
+{% block actions %}<a class="btn-secondary" href="{% url 'reports:daily' %}">Daily summary</a>{% endblock %}
+{% block content %}
+<form class="filter-bar" method="get"><div><label class="label">From</label><input type="date" class="input" name="start" value="{{ start|date:'Y-m-d' }}"></div><div><label class="label">To</label><input type="date" class="input" name="end" value="{{ end|date:'Y-m-d' }}"></div><button class="btn-primary">Apply</button></form>
+<div class="grid gap-6 lg:grid-cols-2">
+<div class="card"><div class="card-header"><h2 class="card-title">Profit and loss estimate</h2><span class="text-xs text-slate-500">{{ s.sale_count }} sales</span></div><table class="table"><tbody>
+<tr><td>Sales (before discounts)</td><td class="num">{% money s.gross_sales %}</td></tr>
+<tr><td>Discounts given</td><td class="num">− {% money s.discounts %}</td></tr>
+<tr><td>Sales returned</td><td class="num">− {% money s.returns %}</td></tr>
+<tr class="font-semibold"><td>Net sales (revenue, excl. tax)</td><td class="num">{% money s.net_sales %}</td></tr>
+<tr><td>Cost of goods sold</td><td class="num">− {% money s.cogs %}</td></tr>
+<tr class="font-semibold"><td>Gross profit {% if s.gross_margin is not None %}<span class="font-normal text-slate-500">({{ s.gross_margin|floatformat:1 }}%)</span>{% endif %}</td><td class="num">{% money s.gross_profit %}</td></tr>
+<tr><td>Operating expenses</td><td class="num">− {% money s.expenses %}</td></tr>
+<tr class="bg-brand-50 font-semibold text-brand-900"><td>Net operating result</td><td class="num">{% money s.net_operating_result %}</td></tr></tbody></table>
+<p class="border-t border-slate-100 px-4 py-3 text-xs text-slate-500">Cost of goods uses the cost price recorded at the time of each sale. Tax collected ({% money s.tax_collected %}) is excluded from revenue. This is an operating estimate, not an audited profit figure.</p></div>
+
+<div class="space-y-6">
+<div class="card"><div class="card-header"><h2 class="card-title">Cash movement</h2></div><table class="table"><tbody>
+<tr><td>Money received (all methods)</td><td class="num">{% money s.money_in %}</td></tr><tr><td>Paid to suppliers</td><td class="num">− {% money s.paid_suppliers %}</td></tr>
+<tr><td>Customer refunds</td><td class="num">− {% money s.refunds %}</td></tr><tr><td>Expenses</td><td class="num">− {% money s.expenses_paid %}</td></tr>
+<tr class="bg-brand-50 font-semibold text-brand-900"><td>Net cash movement</td><td class="num">{% money s.net_cash_movement %}</td></tr></tbody></table></div>
+<div class="card"><div class="card-header"><h2 class="card-title">Balances today</h2></div><table class="table"><tbody>
+<tr><td>Receivables (customers owe you)</td><td class="num">{% money s.receivables %}</td></tr><tr><td>Payables (you owe suppliers)</td><td class="num">{% money s.payables %}</td></tr>
+<tr><td>Purchases received in period (net of returns)</td><td class="num">{% money s.purchases %}</td></tr></tbody></table></div></div></div>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-3">
+<div class="card"><div class="card-header"><h2 class="card-title">Expenses by category</h2></div><div class="card-body">{% include "reports/charts/hbars.html" with rows=expense_bars empty="No expenses in this period." %}</div></div>
+<div class="card"><div class="card-header"><h2 class="card-title">Largest customer balances</h2></div><ul class="divide-y divide-slate-100">{% for c in customers %}<li class="flex justify-between px-4 py-2.5"><a class="link" href="{% url 'customers:detail' c.pk %}">{{ c.name }}</a><span class="tabular-nums">{% money c.bal %}</span></li>{% empty %}<li class="px-4 py-6 text-center text-slate-500">No outstanding balances.</li>{% endfor %}</ul></div>
+<div class="card"><div class="card-header"><h2 class="card-title">Largest supplier balances</h2></div><ul class="divide-y divide-slate-100">{% for c in suppliers %}<li class="flex justify-between px-4 py-2.5"><a class="link" href="{% url 'suppliers:detail' c.pk %}">{{ c.name }}</a><span class="tabular-nums">{% money c.bal %}</span></li>{% empty %}<li class="px-4 py-6 text-center text-slate-500">Nothing owed.</li>{% endfor %}</ul></div></div>
+{% endblock %}

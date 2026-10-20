@@ -1,0 +1,8 @@
+{{ heading_text }}
+
+{{ business_name }}
+{{ title }}
+{{ body }}
+{% for label, value in detail_rows %}{{ label }}: {{ value }}
+{% endfor %}
+{% if cta_url %}{{ cta_label }}: {{ cta_url }}{% endif %}

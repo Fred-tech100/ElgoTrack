@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Stock history{% endblock %}{% block heading %}{{ product.display_name }}{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">Why this product is at <strong>{{ product.stock.quantity|qty }} {{ product.unit }}</strong>: every change, newest first.</p>{% endblock %}
+{% block actions %}<a class="btn-secondary" href="{% url 'products:detail' product.pk %}">Product</a>{% if user|has_perm_code:"inventory.adjust" %}<a class="btn-accent" href="{% url 'inventory:adjust' %}?product={{ product.pk }}">Adjust stock</a>{% endif %}{% endblock %}
+{% block breadcrumbs %}<nav class="mb-1 text-xs text-slate-500" aria-label="Breadcrumb"><a class="link" href="{% url 'inventory:stock' %}">Stock levels</a> / {{ product.display_name }}</nav>{% endblock %}
+{% block content %}
+<div class="table-wrap"><table class="table"><thead><tr><th>When</th><th>Type</th><th class="num">Change</th><th class="num">Balance</th><th>Reference</th><th>Reason</th><th>By</th></tr></thead><tbody>
+{% for m in object_list %}<tr><td class="whitespace-nowrap text-xs text-slate-500">{{ m.created_at|date:"d M Y H:i" }}</td><td>{{ m.get_movement_type_display }}</td><td class="num font-medium {% if m.quantity < 0 %}text-red-600{% else %}text-emerald-700{% endif %}">{% if m.quantity > 0 %}+{% endif %}{{ m.quantity|qty }}</td><td class="num">{{ m.balance_after|qty }}</td><td class="text-xs">{{ m.source_ref|default:"—" }}</td><td class="text-slate-500">{{ m.reason }}</td><td class="text-slate-500">{{ m.created_by|default:"—" }}</td></tr>
+{% empty %}<tr><td colspan="7" class="py-10 text-center text-slate-500">No stock movements recorded.</td></tr>{% endfor %}</tbody></table></div>{% include "components/pagination.html" %}
+{% endblock %}

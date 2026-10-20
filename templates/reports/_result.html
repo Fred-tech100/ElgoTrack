@@ -1,0 +1,11 @@
+{% load ui %}
+{% if error %}<div class="alert-warning mb-3">{{ error }}</div>{% endif %}
+<div class="mb-2 flex flex-wrap items-center justify-between gap-2"><div><h2 class="text-base font-semibold text-brand-900">{{ result.title }}</h2><p class="text-xs text-slate-500">{{ result.subtitle }}</p></div>
+<div class="no-print flex gap-2"><a class="btn-secondary btn-sm" href="?{% keep_query export='csv' %}">CSV</a><a class="btn-secondary btn-sm" href="?{% keep_query export='xlsx' %}">Excel</a><a class="btn-secondary btn-sm" href="?{% keep_query export='pdf' %}">PDF</a><button type="button" class="btn-secondary btn-sm" data-print>Print</button></div></div>
+{% if result.truncated %}<div class="alert-warning mb-3">Showing the first 5,000 rows. Narrow the filters to see everything.</div>{% endif %}
+{% if result.rows %}
+<div class="table-wrap"><table class="table"><thead><tr>{% for c in result.columns %}<th class="{% if c.kind != 'text' and c.kind != 'date' %}num{% endif %}">{{ c.label }}</th>{% endfor %}</tr></thead><tbody>
+{% for row in result.rows %}<tr>{% for c in result.columns %}{% with v=row|get_item:c.key %}<td class="{% if c.kind != 'text' and c.kind != 'date' %}num{% endif %}">{% if v is None or v == "" %}—{% elif c.kind == "money" %}{% money v %}{% elif c.kind == "qty" %}{{ v|qty }}{% elif c.kind == "date" %}{{ v|date:"d M Y" }}{% elif c.kind == "pct" %}{{ v|floatformat:1 }}%{% else %}{{ v }}{% endif %}</td>{% endwith %}{% endfor %}</tr>{% endfor %}</tbody>
+{% if result.totals %}<tfoot class="bg-slate-50 font-semibold"><tr>{% for c in result.columns %}{% with v=result.totals|get_item:c.key %}<td class="px-3 py-2.5 {% if c.kind != 'text' and c.kind != 'date' %}num{% endif %}">{% if forloop.first %}Total{% elif v is None %}{% elif c.kind == "money" %}{% money v %}{% elif c.kind == "qty" %}{{ v|qty }}{% elif c.kind == "pct" %}{{ v|floatformat:1 }}%{% else %}{{ v }}{% endif %}</td>{% endwith %}{% endfor %}</tr></tfoot>{% endif %}</table></div>
+{% else %}{% include "components/empty.html" with title="No data for these filters" text="Try a wider date range or clear some filters." %}{% endif %}
+{% if result.note %}<p class="mt-3 text-xs text-slate-500">{{ result.note }}</p>{% endif %}

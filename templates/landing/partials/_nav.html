@@ -1,0 +1,29 @@
+{% load static %}
+<header class="landing-nav" id="landing-nav">
+  <div class="landing-container landing-nav-inner">
+    <a class="landing-brand" href="#main" aria-label="ElgoTrack home">
+      <img src="{% static 'images/landing/logo.jpeg' %}"
+           alt="" width="44" height="44">
+      <span class="landing-brand-name">ElgoTrack</span>
+    </a>
+
+    <button class="landing-nav-toggle" id="landing-nav-toggle"
+            aria-expanded="false" aria-controls="landing-nav-menu" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="landing-nav-menu" id="landing-nav-menu" aria-label="Primary">
+      <ul class="landing-nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how-it-works">How it works</a></li>
+        <li><a href="#audiences">Businesses</a></li>
+        <li><a href="#reconciliation">Stock Reconciliation</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="landing-nav-actions">
+        <a class="btn btn-ghost" href="{% url 'accounts:login' %}">Login</a>
+        <a class="btn btn-accent" href="{% url 'accounts:register' %}">Start Free Trial</a>
+      </div>
+    </nav>
+  </div>
+</header>

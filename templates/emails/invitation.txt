@@ -1,0 +1,6 @@
+Hi {{ first_name }},
+
+{% if inviter_name %}{{ inviter_name }} invited you{% else %}You’ve been invited{% endif %} to {{ business_name }} on ElgoTrack{% if role_name %} as {{ role_name }}{% endif %}. Set your password to accept the invitation:
+{{ cta_url }}
+
+This secure invitation link expires in {{ expiry_days }} days. If you were not expecting this message, you can ignore it.

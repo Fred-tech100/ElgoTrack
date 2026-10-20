@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}{{ object.name }}{% endblock %}{% block heading %}{{ object.name }} {% if not object.is_active %}{% badge "void" "Inactive" %}{% endif %}{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">{{ object.code }} · {{ object.get_customer_type_display }}{% if object.phone %} · {{ object.phone }}{% endif %}{% if object.email %} · {{ object.email }}{% endif %}</p>{% endblock %}
+{% block actions %}{% if user|has_perm_code:"payments.receive" %}<a class="btn-accent" href="{% url 'payments:customer_payment' %}?customer={{ object.pk }}">Receive payment</a>{% endif %}{% if user|has_perm_code:"contacts.manage" %}<a class="btn-secondary" href="{% url 'customers:edit' object.pk %}">Edit</a>{% endif %}{% endblock %}
+{% block breadcrumbs %}<nav class="mb-1 text-xs text-slate-500" aria-label="Breadcrumb"><a class="link" href="{% url 'customers:list' %}">Customers</a> / {{ object.name }}</nav>{% endblock %}
+{% block content %}
+<div class="mb-4 grid gap-3 sm:grid-cols-3"><div class="card card-body"><p class="stat-label">Balance owed</p><p class="stat-value {% if object.balance > 0 %}text-red-600{% endif %}">{% money object.balance %}</p></div>
+<div class="card card-body"><p class="stat-label">Credit limit</p><p class="stat-value">{% if object.credit_limit %}{% money object.credit_limit %}{% else %}No limit{% endif %}</p></div>
+<div class="card card-body"><p class="stat-label">Unpaid sales</p><p class="stat-value">{{ open_sales|length }}</p></div></div>
+{% if open_sales %}<div class="card mb-6"><div class="card-header"><h2 class="card-title">Unpaid sales</h2></div><table class="table"><tbody>{% for s in open_sales %}<tr><td><a class="link" href="{% url 'sales:detail' s.pk %}">{{ s.number }}</a></td><td>{{ s.sale_date|date:"d M Y" }}</td><td>{% if s.is_overdue %}{% badge "overdue" "Overdue" %}{% elif s.due_date %}Due {{ s.due_date|date:"d M" }}{% endif %}</td><td class="num">{% money s.balance_due %}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+<h2 class="mb-2 text-sm font-semibold text-brand-900">Statement</h2>
+{% url 'customers:statement_pdf' object.pk as pdf_url %}{% include "contacts/_statement.html" %}
+{% endblock %}

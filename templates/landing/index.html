@@ -1,0 +1,17 @@
+{% extends "base_landing.html" %}
+
+{% block content %}
+  {% include "landing/partials/_nav.html" %}
+  <main id="main">
+    {% include "landing/partials/_hero.html" %}
+    {% include "landing/partials/_problem.html" %}
+    {% include "landing/partials/_features.html" %}
+    {% include "landing/partials/_screenshots.html" %}
+    {% include "landing/partials/_reconciliation.html" %}
+    {% include "landing/partials/_audiences.html" %}
+    {% include "landing/partials/_how_it_works.html" %}
+    {% include "landing/partials/_trust.html" %}
+    {% include "landing/partials/_cta.html" %}
+  </main>
+  {% include "landing/partials/_footer.html" %}
+{% endblock %}

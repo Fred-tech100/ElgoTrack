@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}Verify a document{% endblock %}{% block heading %}Verify an invoice or receipt{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">Scan the QR code on a printed or PDF document to confirm it is genuine and unaltered.</p>{% endblock %}
+{% block content %}
+{% include "invoices/_scanner.html" %}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/vendor/jsQR.js' %}"></script><script src="{% static 'js/scanner.js' %}" defer></script>{% endblock %}

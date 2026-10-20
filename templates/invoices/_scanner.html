@@ -1,0 +1,22 @@
+<div id="scanner" data-lookup-url="{{ lookup_url }}" class="grid gap-6 lg:grid-cols-2">
+  <div class="space-y-4">
+    <div class="card overflow-hidden">
+      <div class="relative aspect-[4/3] w-full bg-brand-950">
+        <video id="scan-video" class="h-full w-full object-cover" playsinline muted></video>
+        <div id="scan-frame" class="pointer-events-none absolute inset-0 hidden items-center justify-center"><div class="h-2/3 w-2/3 rounded-xl border-2 border-white/80 shadow-[0_0_0_9999px_rgba(7,23,48,0.45)]"></div></div>
+        <div id="scan-idle" class="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center text-brand-100">
+          <svg class="h-12 w-12 text-brand-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.5 8V5.5a2 2 0 0 1 2-2H8M16 3.5h2.5a2 2 0 0 1 2 2V8M20.5 16v2.5a2 2 0 0 1-2 2H16M8 20.5H5.5a2 2 0 0 1-2-2V16M7 12h10"/></svg>
+          <p class="text-sm">Point the camera at the QR code on the invoice or receipt.</p></div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 border-t border-slate-200 p-3">
+        <button type="button" id="scan-start" class="btn-accent">Start camera</button>
+        <button type="button" id="scan-stop" class="btn-secondary hidden">Stop</button>
+        <label class="btn-secondary cursor-pointer">Scan from photo<input id="scan-file" type="file" accept="image/*" class="sr-only"></label>
+      </div>
+    </div>
+    <p id="scan-status" class="text-sm text-slate-500" aria-live="polite"></p>
+    <form id="scan-manual" class="card card-body space-y-2"><label class="label" for="scan-code">Or type the code printed under the QR</label>
+      <div class="flex gap-2"><input id="scan-code" class="input font-mono uppercase" placeholder="ABCD-EFGH-JKLM" autocomplete="off" maxlength="60"><button class="btn-primary shrink-0">Check</button></div></form>
+  </div>
+  <div id="scan-result" class="space-y-4" aria-live="polite"></div>
+</div>

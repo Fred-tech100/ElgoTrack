@@ -1,0 +1,16 @@
+{# grouped bar chart: chart = reports.charts.grouped_bars(); title / empty text via `title` #}
+{% load ui %}
+{% if chart.has_data %}
+<figure>
+  <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" class="h-auto w-full" role="img" aria-label="{{ title }}">
+    {% for t in chart.ticks %}<line x1="{{ chart.left }}" x2="{{ chart.right_x }}" y1="{{ t.y }}" y2="{{ t.y }}" stroke="{% if forloop.first %}#cbd5e1{% else %}#e8edf3{% endif %}" stroke-width="1"/>
+    <text x="{{ chart.left|add:-6 }}" y="{{ t.y }}" text-anchor="end" dy="0.35em" font-size="10" fill="#64748b">{{ t.label }}</text>{% endfor %}
+    {% for b in chart.bars %}<rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" rx="1.5" fill="{{ b.color }}"><title>{{ b.title }}</title></rect>{% endfor %}
+    {% for l in chart.xlabels %}<text x="{{ l.x }}" y="{{ chart.baseline|add:16 }}" text-anchor="middle" font-size="10" fill="{% if l.strong %}#0b2240{% else %}#64748b{% endif %}" {% if l.strong %}font-weight="600"{% endif %}>{{ l.label }}</text>{% endfor %}
+  </svg>
+  <figcaption class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
+    {% for s in chart.legend %}<span class="inline-flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm" style="background:{{ s.color }}"></span>{{ s.name }}</span>{% endfor %}
+    {% for t in chart.totals %}<span class="ml-auto first:ml-auto tabular-nums"><span class="text-slate-400">{{ t.name }} total</span> <strong class="text-slate-800">{% money t.total %}</strong></span>{% endfor %}
+  </figcaption>
+</figure>
+{% else %}<p class="py-10 text-center text-sm text-slate-500">{{ empty|default:"Nothing to chart yet." }}</p>{% endif %}

@@ -1,0 +1,40 @@
+{% load static %}
+<section class="landing-section landing-section-soft" aria-labelledby="screenshots-heading">
+  <div class="landing-container">
+    <div class="landing-section-head">
+      <p class="landing-eyebrow">The product, in use</p>
+      <h2 id="screenshots-heading">A closer look at ElgoTrack.</h2>
+      <p class="landing-section-sub">
+        Actual screens from the ElgoTrack application — the same interface your team will use every day.
+      </p>
+    </div>
+
+    <div class="landing-screenshot-grid">
+      <figure class="landing-screenshot-card">
+        <img src="{% static 'images/landing/screenshots/dashboard.png' %}"
+             alt="ElgoTrack dashboard" loading="lazy" width="1280" height="800" decoding="async">
+        <figcaption>Dashboard</figcaption>
+      </figure>
+      <figure class="landing-screenshot-card">
+        <img src="{% static 'images/landing/screenshots/inventory.png' %}"
+             alt="ElgoTrack inventory management" loading="lazy" width="1280" height="800" decoding="async">
+        <figcaption>Inventory</figcaption>
+      </figure>
+      <figure class="landing-screenshot-card">
+        <img src="{% static 'images/landing/screenshots/sales.png' %}"
+             alt="ElgoTrack sales and receipts" loading="lazy" width="1280" height="800" decoding="async">
+        <figcaption>Sales &amp; Receipts</figcaption>
+      </figure>
+      <figure class="landing-screenshot-card">
+        <img src="{% static 'images/landing/screenshots/reconciliation.png' %}"
+             alt="ElgoTrack stock reconciliation" loading="lazy" width="1280" height="800" decoding="async">
+        <figcaption>Stock Reconciliation</figcaption>
+      </figure>
+      <figure class="landing-screenshot-card">
+        <img src="{% static 'images/landing/screenshots/reports.png' %}"
+             alt="ElgoTrack reports" loading="lazy" width="1280" height="800" decoding="async">
+        <figcaption>Reports</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>

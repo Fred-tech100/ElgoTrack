@@ -1,0 +1,59 @@
+{% load static %}
+<div class="landing-slider" id="landing-slider"
+     role="region" aria-roledescription="carousel" aria-label="ElgoTrack product previews">
+
+  <div class="landing-slider-track" id="landing-slider-track">
+    <figure class="landing-slide is-active" role="group" aria-roledescription="slide" aria-label="1 of 7">
+      <img src="{% static 'images/landing/hero/invent1.jpeg' %}"
+           alt="ElgoTrack inventory preview"
+           width="1200" height="750" loading="eager" fetchpriority="high" decoding="async">
+    </figure>
+    <figure class="landing-slide" role="group" aria-roledescription="slide" aria-label="2 of 7">
+      <img src="{% static 'images/landing/hero/hero-dashboard.png' %}"
+           alt="ElgoTrack dashboard overview"
+           width="1200" height="750" loading="lazy" decoding="async">
+    </figure>
+    <figure class="landing-slide" role="group" aria-roledescription="slide" aria-label="3 of 7">
+      <img src="{% static 'images/landing/hero/hero-inventory.png' %}"
+           alt="ElgoTrack inventory list with stock levels"
+           width="1200" height="750" loading="lazy" decoding="async">
+    </figure>
+    <figure class="landing-slide" role="group" aria-roledescription="slide" aria-label="4 of 7">
+      <img src="{% static 'images/landing/hero/hero-sales.png' %}"
+           alt="ElgoTrack sales recording screen"
+           width="1200" height="750" loading="lazy" decoding="async">
+    </figure>
+    <figure class="landing-slide" role="group" aria-roledescription="slide" aria-label="5 of 7">
+      <img src="{% static 'images/landing/hero/hero-reconciliation.png' %}"
+           alt="ElgoTrack stock reconciliation screen"
+           width="1200" height="750" loading="lazy" decoding="async">
+    </figure>
+    <figure class="landing-slide" role="group" aria-roledescription="slide" aria-label="6 of 7">
+      <img src="{% static 'images/landing/hero/hero-reports.png' %}"
+           alt="ElgoTrack reports and analytics"
+           width="1200" height="750" loading="lazy" decoding="async">
+    </figure>
+    <figure class="landing-slide" role="group" aria-roledescription="slide" aria-label="7 of 7">
+      <img src="{% static 'images/landing/hero/invent2.jpeg' %}"
+           alt="ElgoTrack inventory preview 2"
+           width="1200" height="750" loading="lazy" decoding="async">
+    </figure>
+  </div>
+
+  <button class="landing-slider-btn landing-slider-prev" id="landing-slider-prev" aria-label="Previous slide">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="landing-slider-btn landing-slider-next" id="landing-slider-next" aria-label="Next slide">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+
+  <div class="landing-slider-dots" id="landing-slider-dots" role="tablist" aria-label="Slide selector">
+    <button class="landing-dot is-active" role="tab" aria-selected="true" aria-label="Go to slide 1"></button>
+    <button class="landing-dot" role="tab" aria-selected="false" aria-label="Go to slide 2"></button>
+    <button class="landing-dot" role="tab" aria-selected="false" aria-label="Go to slide 3"></button>
+    <button class="landing-dot" role="tab" aria-selected="false" aria-label="Go to slide 4"></button>
+    <button class="landing-dot" role="tab" aria-selected="false" aria-label="Go to slide 5"></button>
+    <button class="landing-dot" role="tab" aria-selected="false" aria-label="Go to slide 6"></button>
+    <button class="landing-dot" role="tab" aria-selected="false" aria-label="Go to slide 7"></button>
+  </div>
+</div>

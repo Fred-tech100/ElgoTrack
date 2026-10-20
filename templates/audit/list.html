@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Audit log{% endblock %}{% block heading %}Audit log{% endblock %}
+{% block content %}
+<form class="filter-bar" method="get"><div class="grow"><label class="label">Search</label><input class="input" name="q" value="{{ request.GET.q }}" placeholder="User, object or note"></div>
+<div><label class="label">Area</label><select class="input" name="action"><option value="">All</option>{% for a in action_groups %}<option value="{{ a }}" {% if request.GET.action == a %}selected{% endif %}>{{ a|capfirst }}</option>{% endfor %}</select></div>
+<div><label class="label">From</label><input type="date" class="input" name="start" value="{{ request.GET.start }}"></div><div><label class="label">To</label><input type="date" class="input" name="end" value="{{ request.GET.end }}"></div><button class="btn-primary">Filter</button></form>
+<div class="table-wrap"><table class="table"><thead><tr><th>When</th><th>User</th><th>Action</th><th>Object</th><th>Changes</th></tr></thead><tbody>
+{% for l in object_list %}<tr><td class="whitespace-nowrap text-xs text-slate-500">{{ l.created_at|date:"d M Y H:i" }}</td><td>{{ l.user_label|default:"—" }}<div class="text-xs text-slate-400">{{ l.ip_address|default:"" }}</div></td><td><span class="badge badge-neutral">{{ l.action }}</span></td><td>{{ l.object_repr|default:"—" }}</td>
+<td class="max-w-xs text-xs text-slate-500">{% if l.before %}<div>Before: {{ l.before }}</div>{% endif %}{% if l.after %}<div>After: {{ l.after }}</div>{% endif %}{{ l.message }}</td></tr>{% empty %}<tr><td colspan="5" class="py-10 text-center text-slate-500">No audit entries match.</td></tr>{% endfor %}
+</tbody></table></div>{% include "components/pagination.html" %}
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Import products{% endblock %}{% block heading %}Import products{% endblock %}
+{% block breadcrumbs %}<nav class="mb-1 text-xs text-slate-500"><a class="link" href="{% url 'products:list' %}">Products</a> / Import</nav>{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">Upload a CSV or Excel file. Everything is checked first; nothing is saved unless every row is valid.</p>{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="card card-body max-w-xl space-y-3">{% csrf_token %}
+  <div><label class="label">File (.csv or .xlsx, up to 2,000 rows)</label><input type="file" name="file" accept=".csv,.xlsx" class="input-file" required></div>
+  <p class="help">Columns: name, selling_price (required); sku, barcode, category, brand, unit, purchase_price, wholesale_price, reorder_level, opening_quantity, description. <a class="link" href="{% url 'products:import_template' %}">Download a template</a>.</p>
+  <div><button class="btn-primary">Check file</button></div></form>
+{% if total %}
+<div class="mt-6 space-y-4">
+  {% if errors %}<div class="alert-error">{{ error_total }} problem{{ error_total|pluralize }} found. Fix the file and upload it again — nothing was imported.</div>
+  <div class="table-wrap max-w-2xl"><table class="table"><thead><tr><th>Row</th><th>Problem</th></tr></thead><tbody>{% for line, msg in errors %}<tr><td>{{ line }}</td><td>{{ msg }}</td></tr>{% endfor %}</tbody></table></div>
+  {% if error_total > 200 %}<p class="text-xs text-slate-500">Showing the first 200 problems.</p>{% endif %}
+  {% else %}<div class="alert-success">{{ ok_count }} of {{ total }} rows are valid and ready to import.{% if new_categories %} New categories will be created: {{ new_categories|join:", " }}.{% endif %}</div>
+  <div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Category</th><th class="num">Cost</th><th class="num">Price</th><th class="num">Opening</th></tr></thead><tbody>{% for r in preview %}<tr><td>{{ r.name }}</td><td>{{ r.category|default:"—" }}</td><td class="num">{{ r.purchase_price }}</td><td class="num">{{ r.selling_price }}</td><td class="num">{{ r.opening_quantity }}</td></tr>{% endfor %}</tbody></table></div>
+  <form method="post">{% csrf_token %}<input type="hidden" name="confirm" value="1"><button class="btn-accent">Import {{ ok_count }} products</button></form>{% endif %}
+</div>{% endif %}
+{% endblock %}

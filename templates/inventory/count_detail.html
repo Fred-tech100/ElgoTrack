@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}{{ count.number }}{% endblock %}{% block heading %}{{ count.number }} {% badge count.status count.get_status_display %}{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">{{ count.category|default:"All products" }} · started {{ count.created_at|date:"d M Y H:i" }} by {{ count.started_by }}</p>{% endblock %}
+{% block actions %}<a class="btn-secondary" href="{% url 'inventory:count_list' %}">All counts</a>{% endblock %}
+{% block breadcrumbs %}<nav class="mb-1 text-xs text-slate-500" aria-label="Breadcrumb"><a class="link" href="{% url 'inventory:count_list' %}">Stock counts</a> / {{ count.number }}</nav>{% endblock %}
+{% block content %}
+<div class="mb-4 grid grid-cols-3 gap-3"><div class="card card-body"><p class="stat-label">Counted</p><p class="stat-value">{{ counted_total }} / {{ lines|length }}</p></div>
+<div class="card card-body"><p class="stat-label">With differences</p><p class="stat-value">{{ variance_lines }}</p></div><div class="card card-body"><p class="stat-label">Variance value (cost)</p><p class="stat-value {% if variance_value < 0 %}text-red-600{% endif %}">{% money variance_value %}</p></div></div>
+{% if count.status == "draft" %}<div class="alert-info mb-4">Enter the quantity you physically counted. Leave a row blank to skip it. Give a reason for every difference before submitting. Expected quantities are a snapshot taken when the count started.</div>{% endif %}
+{% if count.review_note %}<div class="alert-warning mb-4"><strong>Reviewer note:</strong> {{ count.review_note }}</div>{% endif %}
+<form method="post" action="{% url 'inventory:count_action' count.pk %}">{% csrf_token %}
+<div class="table-wrap"><table class="table"><thead><tr><th>Product</th><th class="num">Expected</th><th class="num">Physical</th><th class="num">Variance</th><th>Reason</th></tr></thead><tbody>
+{% for l in lines %}<tr class="{% if l.variance and l.variance != 0 %}bg-amber-50/50{% endif %}"><td>{{ l.product.display_name }}<div class="text-xs text-slate-400">{{ l.product.sku }}</div></td><td class="num">{{ l.expected_quantity|qty }}</td>
+<td class="num">{% if count.status == "draft" %}<input class="input h-11 w-28 text-right text-base" type="number" step="any" min="0" inputmode="decimal" name="counted_{{ l.pk }}" value="{{ l.counted_quantity|default_if_none:''|qty }}">{% else %}{{ l.counted_quantity|default_if_none:"—"|qty }}{% endif %}</td>
+<td class="num font-medium {% if l.variance and l.variance < 0 %}text-red-600{% elif l.variance and l.variance > 0 %}text-emerald-700{% endif %}">{% if l.variance is not None %}{% if l.variance > 0 %}+{% endif %}{{ l.variance|qty }}{% endif %}</td>
+<td>{% if count.status == "draft" %}<input class="input" name="reason_{{ l.pk }}" value="{{ l.reason }}" placeholder="Reason if different" maxlength="300">{% else %}{{ l.reason }}{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+{% if count.status == "draft" %}<div class="mt-5 flex flex-wrap gap-2">{% if user|has_perm_code:"inventory.count" %}<button name="action" value="save" class="btn-secondary">Save progress</button><button name="action" value="submit" class="btn-primary">Submit for approval</button><button name="action" value="cancel" class="btn-ghost text-red-600" formnovalidate data-confirm-click="Cancel this count?">Cancel count</button>{% endif %}</div>{% endif %}
+{% if count.status == "submitted" and user|has_perm_code:"inventory.approve" %}<div class="card mt-5 max-w-xl"><div class="card-body space-y-3"><div><label class="label">Review note</label><input class="input" name="review_note" placeholder="Required when rejecting"></div>
+<div class="flex gap-2"><button name="action" value="approve" class="btn-primary" data-confirm-click="Approve this count and adjust stock to match?">Approve and adjust stock</button><button name="action" value="reject" class="btn-danger">Reject</button></div></div></div>{% endif %}
+</form>
+{% endblock %}

@@ -1,0 +1,27 @@
+<section class="landing-hero" aria-labelledby="hero-heading">
+  <div class="landing-container landing-hero-grid">
+    <div class="landing-hero-copy">
+      <p class="landing-eyebrow">Inventory &amp; Business Management</p>
+      <h1 id="hero-heading" class="landing-h1">
+        Know your stock.<br>
+        Know your sales.<br>
+        Know your business.
+      </h1>
+      <p class="landing-lede">
+        ElgoTrack helps businesses manage inventory, sales, purchases, expenses,
+        customer credit and everyday business records from one simple platform.
+      </p>
+      <div class="landing-hero-actions">
+        <a class="btn btn-accent landing-btn-lg" href="{% url 'accounts:register' %}">Start Free Trial</a>
+        <a class="btn btn-secondary landing-btn-lg" href="{% url 'accounts:login' %}">Login</a>
+      </div>
+      <p class="landing-hero-note">
+        Built by <strong>ElgonNova Technologies</strong> · Designed for African businesses
+      </p>
+    </div>
+
+    <div class="landing-hero-visual">
+      {% include "landing/partials/_hero_slider.html" %}
+    </div>
+  </div>
+</section>

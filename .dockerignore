@@ -1,0 +1,22 @@
+.git
+.env*
+.venv
+venv
+node_modules
+db.sqlite3
+media
+staticfiles
+__pycache__
+*.pyc
+backups
+deploy/certs
+*.pem
+*.key
+*.p12
+*.pfx
+*.sqlite3
+*.db
+*.dump
+*.tgz
+*.log
+static/images/landing/Modelling and Simulation ASSIGNMENT .pdf

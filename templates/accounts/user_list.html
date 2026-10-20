@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Users & roles{% endblock %}{% block heading %}Users & roles{% endblock %}
+{% block actions %}{% if user|has_perm_code:"roles.manage" %}<a href="{% url 'accounts:roles' %}" class="btn-secondary">Manage roles</a>{% endif %}{% if user|has_perm_code:"users.manage" %}<a href="{% url 'accounts:user_create' %}" class="btn-accent">Add user</a>{% endif %}{% endblock %}
+{% block content %}
+<div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>2FA</th><th></th></tr></thead><tbody>
+{% for u in object_list %}<tr><td class="font-medium text-slate-900">{{ u.full_name }}</td><td>{{ u.email }}</td><td>{{ u.role.name }}</td>
+<td>{% if u.is_active %}{% if u.has_usable_password %}{% badge "active" %}{% else %}{% badge "pending" "Invited" %}{% endif %}{% else %}{% badge "void" "Inactive" %}{% endif %}</td>
+<td>{% if u.totp_enabled %}{% badge "active" "On" %}{% else %}<span class="text-xs text-slate-400">Off</span>{% endif %}</td>
+<td class="text-right">{% if user|has_perm_code:"users.manage" %}{% if u.totp_enabled and u != request.user %}<form method="post" action="{% url 'accounts:user_reset_2fa' u.pk %}" class="mr-3 inline" data-confirm="Reset two-factor for this user? They will have to set it up again.">{% csrf_token %}<button class="link">Reset 2FA</button></form>{% endif %}<a class="link" href="{% url 'accounts:user_edit' u.pk %}">Edit</a>
+{% if not u.has_usable_password %}<form method="post" action="{% url 'accounts:user_invite' u.pk %}" class="ml-3 inline">{% csrf_token %}<button class="link">Resend invite</button></form>{% endif %}{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% include "components/pagination.html" %}
+{% endblock %}

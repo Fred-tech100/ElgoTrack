@@ -1,0 +1,30 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ElgoTrack — Inventory &amp; Business Management System{% endblock %}</title>
+  <meta name="description" content="{% block description %}ElgoTrack helps businesses manage inventory, sales, purchases, expenses, customer credit and business records from one simple platform.{% endblock %}">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ElgoTrack">
+  <meta property="og:title" content="{% block og_title %}ElgoTrack — Inventory &amp; Business Management System{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Simple, professional business management for inventory, sales, purchases and customer credit.{% endblock %}">
+  <meta property="og:image" content="{% static 'images/landing/branding/og-image.png' %}">
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/">
+  <link rel="preload" as="image"
+      href="{% static 'images/landing/hero/hero-dashboard.png' %}"
+      fetchpriority="high">
+
+  <link rel="icon" type="image/svg+xml" href="{% static 'images/landing/branding/favicon.svg' %}">
+
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+</head>
+<body class="landing-body">
+  {% block content %}{% endblock %}
+  <script src="{% static 'js/landing.js' %}" defer></script>
+</body>
+</html>

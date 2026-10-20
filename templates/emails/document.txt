@@ -1,0 +1,7 @@
+Hi {{ first_name }},
+
+{{ business_name }} has sent your {{ document_type|lower }} {{ document_number }}. The PDF is attached for your records.
+Date: {{ document_date }}
+Amount: {{ document_amount }}
+{% if payment_status %}Payment status: {{ payment_status }}{% endif %}
+{% if cta_url %}Verify document: {{ cta_url }}{% endif %}

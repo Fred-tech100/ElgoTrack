@@ -1,0 +1,42 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Dashboard{% endblock %}{% block heading %}Dashboard{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">{% now "l, j F Y" %}</p>{% endblock %}
+{% block actions %}{% if show_finance %}<a href="{% url 'reports:daily' %}" class="btn-secondary">Daily summary</a>{% endif %}{% if user|has_perm_code:"sales.create" %}<a href="{% url 'sales:create' %}" class="btn-accent">New sale</a>{% endif %}{% if user|has_perm_code:"purchases.create" %}<a href="{% url 'purchases:create' %}" class="btn-secondary">New purchase</a>{% endif %}{% endblock %}
+{% block content %}
+{% if onboarding %}<div class="card mb-6 border-accent-400/50"><div class="card-header"><h2 class="card-title">Get started</h2><span class="text-xs text-slate-500">{{ onboarding_done }} of {{ onboarding|length }} done</span></div>
+<ul class="divide-y divide-slate-100">{% for label, done, url in onboarding %}<li class="flex items-center justify-between px-4 py-2.5"><span class="flex items-center gap-2.5"><span class="flex h-5 w-5 items-center justify-center rounded-full text-xs {% if done %}bg-emerald-100 text-emerald-700{% else %}border border-slate-300 text-transparent{% endif %}">✓</span><span class="{% if done %}text-slate-400 line-through{% endif %}">{{ label }}</span></span>{% if not done %}<a class="link text-xs" href="{% url url %}">Do this</a>{% endif %}</li>{% endfor %}</ul></div>{% endif %}
+
+<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+  <div class="card card-body"><p class="stat-label">Today's sales</p><p class="stat-value">{% money m.today_sales %}</p><p class="mt-1 text-xs text-slate-500">{{ m.today_sale_count }} sale{{ m.today_sale_count|pluralize }}</p></div>
+  {% if show_finance %}
+  <div class="card card-body"><p class="stat-label">Today's expenses</p><p class="stat-value">{% money m.today_expenses %}</p></div>
+  <div class="card card-body"><p class="stat-label">Today's purchases</p><p class="stat-value">{% money m.today_purchases %}</p></div>
+  <div class="card card-body"><p class="stat-label">Stock value (at cost)</p><p class="stat-value">{% money m.stock_value %}</p></div>
+  <div class="card card-body"><p class="stat-label">Customers owe you</p><p class="stat-value">{% money m.receivables %}</p>{% if m.overdue_count %}<p class="mt-1 text-xs font-medium text-red-600">{{ m.overdue_count }} overdue sale{{ m.overdue_count|pluralize }}</p>{% endif %}</div>
+  <div class="card card-body"><p class="stat-label">You owe suppliers</p><p class="stat-value">{% money m.payables %}</p></div>
+  {% endif %}
+  <div class="card card-body"><p class="stat-label">Low stock</p><p class="stat-value {% if m.low_stock_count %}text-amber-600{% endif %}">{{ m.low_stock_count }}</p></div>
+  <div class="card card-body"><p class="stat-label">Out of stock</p><p class="stat-value {% if m.out_of_stock %}text-red-600{% endif %}">{{ m.out_of_stock }}</p></div>
+</div>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-3">
+  <div class="card lg:col-span-2"><div class="card-header"><h2 class="card-title">{% if show_finance %}Sales and expenses{% else %}Sales{% endif %}, last 14 days</h2><a class="link text-xs" href="{% url 'reports:run' 'sales-time' %}">Report</a></div><div class="card-body">{% include "reports/charts/bars.html" with chart=charts.trend title="Daily sales and expenses for the last 14 days" empty="No sales in the last 14 days." %}</div></div>
+  <div class="card"><div class="card-header"><h2 class="card-title">Stock health</h2><a class="link text-xs" href="{% url 'inventory:stock' %}">View stock</a></div><div class="card-body space-y-4">
+    {% if charts.stock.total %}<div class="flex h-4 overflow-hidden rounded-full bg-slate-100" role="img" aria-label="Stock health">{% for p in charts.stock.parts %}{% if p.count %}<div style="width:{{ p.pct }}%;background:{{ p.color }}" title="{{ p.label }}: {{ p.count }}"></div>{% endif %}{% endfor %}</div>
+    <ul class="space-y-2 text-sm">{% for p in charts.stock.parts %}<li><a class="flex items-center justify-between hover:text-brand-800" href="{{ p.url }}"><span class="inline-flex items-center gap-2"><span class="inline-block h-2.5 w-2.5 rounded-sm" style="background:{{ p.color }}"></span>{{ p.label }}</span><span class="tabular-nums font-medium">{{ p.count }}</span></a></li>{% endfor %}</ul>
+    {% else %}<p class="py-6 text-center text-sm text-slate-500">Add products to see stock health.</p>{% endif %}
+    {% if m.low_stock %}<div class="border-t border-slate-100 pt-3"><p class="stat-label mb-2">Needs restocking</p><ul class="space-y-1.5 text-sm">{% for s in m.low_stock|slice:":4" %}<li class="flex items-center justify-between gap-2"><a class="link truncate" href="{% url 'products:detail' s.product.pk %}">{{ s.product.display_name }}</a><span class="badge badge-warning shrink-0">{{ s.quantity|qty }} left</span></li>{% endfor %}</ul></div>{% endif %}</div></div>
+</div>
+<div class="mt-6 grid gap-6 lg:grid-cols-3">
+  <div class="card"><div class="card-header"><h2 class="card-title">Top products, 30 days</h2><a class="link text-xs" href="{% url 'reports:run' 'sales-product' %}">Report</a></div><div class="card-body">{% include "reports/charts/hbars.html" with rows=charts.top empty="No sales in the last 30 days." %}</div></div>
+  {% if show_finance %}
+  <div class="card"><div class="card-header"><h2 class="card-title">Money received by method</h2><span class="text-xs text-slate-400">30 days</span></div><div class="card-body">{% include "reports/charts/donut.html" with donut=charts.mix title="Money received by payment method in the last 30 days" %}</div></div>
+  <div class="card"><div class="card-header"><h2 class="card-title">Customer credit: how late?</h2><a class="link text-xs" href="{% url 'reports:run' 'customer-credits' %}">Report</a></div><div class="card-body">
+    {% if charts.aging.has_data %}<ul class="space-y-3">{% for r in charts.aging.rows %}<li><div class="mb-1 flex justify-between text-sm"><span>{{ r.label }}</span><span class="tabular-nums font-medium">{% money r.value %}</span></div><div class="h-2.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full" style="width:{{ r.pct }}%;background:{{ r.color }}"></div></div></li>{% endfor %}</ul>
+    <p class="mt-3 border-t border-slate-100 pt-2 text-sm text-slate-600">Total owed on open sales: <strong class="text-slate-900">{% money charts.aging.total %}</strong></p>{% else %}<p class="py-10 text-center text-sm text-slate-500">Nobody owes you money.</p>{% endif %}</div></div>
+  {% endif %}
+</div>
+{% include "reports/charts/legend.html" %}
+{% if user|has_perm_code:"sales.view" %}<div class="card mt-6"><div class="card-header"><h2 class="card-title">Recent sales</h2><a class="link text-xs" href="{% url 'sales:list' %}">View all</a></div>
+<div class="table-wrap border-0 shadow-none"><table class="table"><tbody>{% for s in m.recent_sales %}<tr><td><a class="link" href="{% url 'sales:detail' s.pk %}">{{ s.number }}</a></td><td>{{ s.customer.name|default:"Walk-in" }}</td><td class="text-slate-500">{{ s.sale_date|date:"d M H:i" }}</td><td class="num">{% money s.total %}</td><td>{% badge s.payment_status %}</td></tr>{% empty %}<tr><td class="py-8 text-center text-slate-500">No sales yet.</td></tr>{% endfor %}</tbody></table></div></div>{% endif %}
+{% endblock %}

@@ -1,0 +1,51 @@
+{% load static %}
+<footer class="landing-footer" id="contact" role="contentinfo">
+  <div class="landing-container landing-footer-grid">
+    <div class="landing-footer-brand">
+      <a class="landing-brand" href="#main" aria-label="ElgoTrack home">
+        <img src="{% static 'images/landing/logo.jpeg' %}"
+             alt="" width="44" height="44">
+        <span class="landing-brand-name">ElgoTrack</span>
+      </a>
+      <p>Inventory &amp; Business Management System</p>
+      <p class="landing-footer-by">A product of <strong>ElgonNova Technologies</strong></p>
+    </div>
+
+    <nav class="landing-footer-nav" aria-label="Footer">
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#reconciliation">Stock Reconciliation</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Account</h4>
+        <ul>
+          <li><a href="{% url 'accounts:login' %}">Login</a></li>
+          <li><a href="{% url 'accounts:register' %}">Register</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul class="landing-footer-contact">
+          <li><a href="tel:+256753825829">+256 753 825 829</a></li>
+          <li><a href="tel:+256771467507">+256 771 467 507</a></li>
+          <li><a href="mailto:elgonnovatechnologies@gmail.com">elgonnovatechnologies@gmail.com</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+<div class="landing-container landing-footer-bottom">
+  <p>
+    © 2026
+    <a href="https://www.elgonnova.online"
+       target="_blank"
+       rel="noopener">
+      ElgonNova Technologies
+    </a>.
+    All rights reserved.
+  </p>
+</div>
+</footer>

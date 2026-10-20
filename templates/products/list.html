@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Products{% endblock %}{% block heading %}Products{% endblock %}
+{% block actions %}<a class="btn-secondary" href="{% url 'products:export' %}">Export CSV</a>{% if user|has_perm_code:"products.manage" %}<a class="btn-secondary" href="{% url 'products:import' %}">Import</a>{% endif %}<a class="btn-secondary" href="{% url 'products:categories' %}">Categories & units</a>{% if user|has_perm_code:"products.manage" %}<a class="btn-accent" href="{% url 'products:create' %}">Add product</a>{% endif %}{% endblock %}
+{% block content %}
+<form class="filter-bar" method="get"><div class="grow"><label class="label">Search</label><input class="input" name="q" value="{{ request.GET.q }}" placeholder="Name, SKU, barcode or brand"></div>
+<div><label class="label">Category</label><select class="input" name="category"><option value="">All</option>{% for c in categories %}<option value="{{ c.pk }}" {% if request.GET.category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+<div><label class="label">Show</label><select class="input" name="status"><option value="">Active</option><option value="low" {% if request.GET.status == "low" %}selected{% endif %}>Low stock</option><option value="out" {% if request.GET.status == "out" %}selected{% endif %}>Out of stock</option><option value="inactive" {% if request.GET.status == "inactive" %}selected{% endif %}>Inactive</option></select></div>
+<button class="btn-primary">Filter</button></form>
+{% if object_list %}
+<div class="table-wrap"><table class="table"><thead><tr><th><a class="hover:text-brand-800" href="?{% keep_query sort='name' %}">Product</a></th><th>SKU</th><th>Category</th><th class="num"><a href="?{% keep_query sort='selling_price' %}">Price</a></th><th class="num"><a href="?{% keep_query sort='stock__quantity' %}">In stock</a></th><th></th></tr></thead><tbody>
+{% for p in object_list %}<tr><td><a class="link" href="{% url 'products:detail' p.pk %}">{{ p.display_name }}</a>{% if p.brand %}<div class="text-xs text-slate-500">{{ p.brand }}</div>{% endif %}</td><td class="text-slate-500">{{ p.sku }}</td><td>{{ p.category|default:"—" }}</td><td class="num">{% money p.selling_price %}</td>
+<td class="num">{{ p.stock.quantity|qty }} <span class="text-xs text-slate-400">{{ p.unit }}</span></td>
+<td>{% if not p.is_active %}{% badge "void" "Inactive" %}{% elif p.stock.quantity <= 0 %}{% badge "unpaid" "Out" %}{% elif p.stock.quantity <= p.reorder_level %}{% badge "partial" "Low" %}{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% include "components/pagination.html" %}
+{% else %}{% include "components/empty.html" with title="No products found" text="Add your first product, or change the filters." url="/products/new/" action="Add product" %}{% endif %}
+{% endblock %}

@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { @apply text-slate-800 antialiased; }
+  body { @apply bg-slate-50 text-sm; }
+  h1, h2, h3 { @apply text-brand-900; }
+}
+
+@layer components {
+  /* Buttons */
+  .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-md border px-3.5 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 disabled:opacity-50; }
+  .btn-primary { @apply btn border-brand-800 bg-brand-800 text-white hover:bg-brand-900; }
+  .btn-accent { @apply btn border-accent-500 bg-accent-500 text-white hover:bg-accent-600; }
+  .btn-secondary { @apply btn border-slate-300 bg-white text-slate-700 hover:bg-slate-50; }
+  .btn-danger { @apply btn border-red-600 bg-red-600 text-white hover:bg-red-700; }
+  .btn-ghost { @apply btn border-transparent bg-transparent text-brand-700 hover:bg-brand-50; }
+  .btn-sm { @apply px-2.5 py-1 text-xs; }
+
+  /* Forms */
+  .input { @apply block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600 disabled:bg-slate-100; }
+  .input-file { @apply block w-full text-sm text-slate-600 file:mr-3 file:rounded-md file:border file:border-slate-300 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium; }
+  .label { @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500; }
+  .help { @apply mt-1 text-xs text-slate-500; }
+  .field-error { @apply mt-1 text-xs font-medium text-red-600; }
+
+  /* Surfaces */
+  .card { @apply rounded-lg border border-slate-200 bg-white shadow-card; }
+  .card-header { @apply flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3; }
+  .card-title { @apply text-sm font-semibold text-brand-900; }
+  .card-body { @apply p-4; }
+  .stat-label { @apply text-xs font-medium uppercase tracking-wide text-slate-500; }
+  .stat-value { @apply mt-1 text-xl font-semibold text-brand-900 tabular-nums; }
+
+  /* Tables */
+  .table-wrap { @apply overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-card; }
+  .table { @apply min-w-full divide-y divide-slate-200 text-sm; }
+  .table thead { @apply bg-slate-50; }
+  .table th { @apply whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500; }
+  .table td { @apply px-3 py-2.5 align-middle text-slate-700; }
+  .table tbody tr { @apply hover:bg-slate-50/70; }
+  .table tbody { @apply divide-y divide-slate-100; }
+  .num { @apply text-right tabular-nums; }
+
+  /* Badges */
+  .badge { @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium; }
+  .badge-success { @apply bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20; }
+  .badge-warning { @apply bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-600/20; }
+  .badge-danger { @apply bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20; }
+  .badge-info { @apply bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-600/20; }
+  .badge-neutral { @apply bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-500/20; }
+
+  /* Alerts */
+  .alert { @apply flex items-start gap-2 rounded-md border px-3.5 py-2.5 text-sm; }
+  .alert-success { @apply alert border-emerald-200 bg-emerald-50 text-emerald-800; }
+  .alert-error { @apply alert border-red-200 bg-red-50 text-red-800; }
+  .alert-warning { @apply alert border-amber-200 bg-amber-50 text-amber-900; }
+  .alert-info { @apply alert border-brand-200 bg-brand-50 text-brand-800; }
+
+  /* Navigation: the sidebar stays pinned to the viewport; only its menu list scrolls */
+  .sidebar { position: fixed; top: 0; bottom: 0; left: 0; height: 100vh; height: 100dvh; overscroll-behavior: contain; }
+
+  .nav-group { @apply px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-brand-300; }
+  .nav-link { @apply mx-2 flex items-center rounded-md px-3 py-2 text-sm font-medium text-brand-100 hover:bg-brand-800 hover:text-white; }
+  .nav-link-active { @apply bg-brand-700 text-white; }
+  .link { @apply font-medium text-brand-700 hover:text-accent-600 hover:underline; }
+  .empty { @apply rounded-lg border border-dashed border-slate-300 bg-white px-6 py-12 text-center; }
+  .filter-bar { @apply mb-4 flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-card; }
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+  .card, .table-wrap { box-shadow: none; }
+}

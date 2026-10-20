@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Private / authenticated areas — do not index
+Disallow: /accounts/
+Disallow: /platform/
+Disallow: /settings/
+Disallow: /products/
+Disallow: /inventory/
+Disallow: /sales/
+Disallow: /purchases/
+Disallow: /payments/
+Disallow: /expenses/
+Disallow: /documents/
+Disallow: /reports/
+Disallow: /audit/
+Disallow: /notifications/
+Disallow: /search/
+
+Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap.xml

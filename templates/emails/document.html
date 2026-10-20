@@ -1,0 +1,12 @@
+{% extends "emails/base.html" %}
+{% block title %}{{ document_type }} {{ document_number }} from {{ business_name }}{% endblock %}
+{% block heading %}{{ document_type }} {{ document_number }}{% endblock %}
+{% block content %}
+<p style="margin:0 0 14px;font-size:15px;line-height:1.65;">Hi {{ first_name }},</p>
+<p style="margin:0 0 14px;font-size:15px;line-height:1.65;">{{ business_name }} has sent your {{ document_type|lower }}. The PDF is attached for your records.</p>
+<table role="presentation" cellspacing="0" cellpadding="7" border="0" style="font-size:14px;border-collapse:collapse;">
+<tr><td style="color:#64748b;">Date</td><td>{{ document_date }}</td></tr>
+<tr><td style="color:#64748b;">Amount</td><td>{{ document_amount }}</td></tr>
+{% if payment_status %}<tr><td style="color:#64748b;">Payment status</td><td>{{ payment_status }}</td></tr>{% endif %}
+</table>
+{% endblock %}

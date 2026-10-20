@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Stock levels{% endblock %}{% block heading %}Stock levels{% endblock %}
+{% block actions %}<a class="btn-secondary" href="{% url 'inventory:movements' %}">All movements</a>{% if user|has_perm_code:"inventory.adjust" %}<a class="btn-accent" href="{% url 'inventory:adjust' %}">Adjust stock</a>{% endif %}{% endblock %}
+{% block content %}
+<form class="filter-bar" method="get"><div class="grow"><label class="label">Search</label><input class="input" name="q" value="{{ request.GET.q }}" placeholder="Name, SKU or barcode"></div>
+<div><label class="label">Category</label><select class="input" name="category"><option value="">All</option>{% for c in categories %}<option value="{{ c.pk }}" {% if request.GET.category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+<div><label class="label">Status</label><select class="input" name="status"><option value="">All</option><option value="low" {% if request.GET.status == "low" %}selected{% endif %}>Low stock</option><option value="out" {% if request.GET.status == "out" %}selected{% endif %}>Out of stock</option></select></div><button class="btn-primary">Filter</button></form>
+<div class="table-wrap"><table class="table"><thead><tr><th>Product</th><th>Category</th><th class="num">On hand</th><th class="num">Reorder at</th><th class="num">Value (cost)</th><th></th></tr></thead><tbody>
+{% for p in object_list %}<tr><td><a class="link" href="{% url 'inventory:ledger' p.pk %}">{{ p.display_name }}</a><div class="text-xs text-slate-500">{{ p.sku }}</div></td><td>{{ p.category|default:"—" }}</td><td class="num font-medium">{{ p.stock.quantity|qty }} <span class="text-xs text-slate-400">{{ p.unit }}</span></td><td class="num text-slate-500">{{ p.reorder_level|qty }}</td><td class="num">{% money p.stock.quantity|mul:p.purchase_price %}</td>
+<td>{% if p.stock.quantity <= 0 %}{% badge "unpaid" "Out of stock" %}{% elif p.stock.quantity <= p.reorder_level %}{% badge "partial" "Low" %}{% endif %}</td></tr>
+{% empty %}<tr><td colspan="6" class="py-10 text-center text-slate-500">No products match.</td></tr>{% endfor %}</tbody></table></div>{% include "components/pagination.html" %}
+{% endblock %}

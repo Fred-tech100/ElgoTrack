@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Suppliers{% endblock %}{% block heading %}Suppliers{% endblock %}
+{% block actions %}{% if user|has_perm_code:"payments.pay_supplier" %}<a class="btn-secondary" href="{% url 'payments:supplier_payment' %}">Pay supplier</a>{% endif %}{% if user|has_perm_code:"contacts.manage" %}<a class="btn-accent" href="{% url 'suppliers:create' %}">Add supplier</a>{% endif %}{% endblock %}
+{% block content %}
+<form class="filter-bar" method="get"><div class="grow"><label class="label">Search</label><input class="input" name="q" value="{{ request.GET.q }}"></div><label class="flex items-center gap-2 pb-2 text-sm"><input type="checkbox" name="owing" value="1" {% if request.GET.owing %}checked{% endif %}> We owe them</label><button class="btn-primary">Filter</button></form>
+{% if object_list %}<div class="table-wrap"><table class="table"><thead><tr><th>Supplier</th><th>Contact</th><th>Phone</th><th class="num">We owe</th></tr></thead><tbody>
+{% for c in object_list %}<tr><td><a class="link" href="{% url 'suppliers:detail' c.pk %}">{{ c.name }}</a><div class="text-xs text-slate-400">{{ c.code }}</div></td><td>{{ c.contact_person|default:"—" }}</td><td>{{ c.phone|default:"—" }}</td><td class="num {% if c.bal > 0 %}font-medium text-red-600{% endif %}">{% money c.bal %}</td></tr>{% endfor %}</tbody></table></div>{% include "components/pagination.html" %}
+{% else %}{% include "components/empty.html" with title="No suppliers yet" text="Add the businesses you buy stock from." url="/suppliers/new/" action="Add supplier" %}{% endif %}
+{% endblock %}

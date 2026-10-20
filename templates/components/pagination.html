@@ -1,0 +1,8 @@
+{% load ui %}{% if is_paginated %}
+<nav class="no-print mt-4 flex items-center justify-between text-sm text-slate-600" aria-label="Pagination">
+  <p>Page {{ page_obj.number }} of {{ paginator.num_pages }} · {{ paginator.count }} result{{ paginator.count|pluralize }}</p>
+  <div class="flex gap-2">
+    {% if page_obj.has_previous %}<a class="btn-secondary btn-sm" href="{% page_url page_obj.previous_page_number %}">Previous</a>{% endif %}
+    {% if page_obj.has_next %}<a class="btn-secondary btn-sm" href="{% page_url page_obj.next_page_number %}">Next</a>{% endif %}
+  </div>
+</nav>{% endif %}

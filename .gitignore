@@ -1,0 +1,38 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+deploy/certs/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local data and generated files
+*.sqlite3
+*.sqlite3-*
+*.db
+media/
+backups/
+staticfiles/
+*.log
+*.dump
+*.tgz
+.coverage
+coverage.xml
+htmlcov/
+
+# Local environments and build dependencies
+.venv/
+venv/
+node_modules/
+
+# Python cache
+*.py[cod]
+__pycache__/
+
+# Local operating-system files
+.DS_Store
+Thumbs.db
+
+

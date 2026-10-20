@@ -1,0 +1,8 @@
+{% extends "emails/base.html" %}
+{% block title %}You’ve been invited to ElgoTrack{% endblock %}
+{% block heading %}You’ve been invited to join {{ business_name }}{% endblock %}
+{% block content %}
+<p style="margin:0 0 14px;font-size:15px;line-height:1.65;">Hi {{ first_name }},</p>
+<p style="margin:0;font-size:15px;line-height:1.65;">{% if inviter_name %}{{ inviter_name }} invited you{% else %}You’ve been invited{% endif %} to {{ business_name }} on ElgoTrack{% if role_name %} as {{ role_name }}{% endif %}. Set your password to accept the invitation.</p>
+{% endblock %}
+{% block note %}<p style="margin:16px 0 0;font-size:12px;line-height:1.6;color:#64748b;">This secure invitation link expires in {{ expiry_days }} days. If you were not expecting this message, you can ignore it.</p>{% endblock %}

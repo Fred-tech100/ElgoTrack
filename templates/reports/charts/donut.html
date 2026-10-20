@@ -1,0 +1,13 @@
+{# donut: donut = reports.charts.donut() #}
+{% load ui %}
+{% if donut.has_data %}
+<div class="flex flex-wrap items-center gap-5">
+  <svg viewBox="0 0 42 42" class="h-36 w-36 shrink-0 -rotate-0" role="img" aria-label="{{ title }}">
+    <circle cx="21" cy="21" r="15.9155" fill="none" stroke="#e8edf3" stroke-width="6"/>
+    {% for s in donut.segments %}<circle cx="21" cy="21" r="15.9155" fill="none" stroke="{{ s.color }}" stroke-width="6" stroke-dasharray="{{ s.dash }} {{ s.gap }}" stroke-dashoffset="{{ s.offset }}"><title>{{ s.label }}: {{ s.pct }}%</title></circle>{% endfor %}
+    <text x="21" y="20.5" text-anchor="middle" font-size="3.6" font-weight="600" fill="#0b2240">{% money donut.total symbol=False %}</text>
+    <text x="21" y="25" text-anchor="middle" font-size="2.4" fill="#64748b">total</text>
+  </svg>
+  <ul class="min-w-[10rem] flex-1 space-y-2 text-sm">{% for s in donut.segments %}<li class="flex items-center justify-between gap-3"><span class="inline-flex items-center gap-2"><span class="inline-block h-2.5 w-2.5 rounded-sm" style="background:{{ s.color }}"></span>{{ s.label }}</span><span class="tabular-nums text-slate-600">{% money s.amount symbol=False %} <span class="text-slate-400">· {{ s.pct }}%</span></span></li>{% endfor %}</ul>
+</div>
+{% else %}<p class="py-10 text-center text-sm text-slate-500">{{ empty|default:"No payments recorded in this period." }}</p>{% endif %}

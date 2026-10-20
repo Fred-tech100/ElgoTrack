@@ -1,0 +1,35 @@
+{% extends "platform/base.html" %}
+{% block title %}Create ElgonNova invoice{% endblock %}{% block heading %}Create invoice{% endblock %}
+{% block subtitle %}<p class="mt-1 text-sm text-slate-500">Bill a subscribed business or any external client. Add flexible service lines and optional tax for each item.</p>{% endblock %}
+{% block content %}
+<form method="post" class="card max-w-5xl" novalidate>
+  {% csrf_token %}
+  <div class="card-body space-y-6">
+    {% if form.non_field_errors %}<div class="alert-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+    <section>
+      <h2 class="card-title mb-3">Client and invoice details</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        {% for field in form.visible_fields %}<div class="{% if field.name == 'client_address' or field.name == 'notes' %}sm:col-span-2{% endif %}">{% include "components/field.html" %}</div>{% endfor %}
+      </div>
+    </section>
+    <section>
+      <div class="mb-3 flex items-center justify-between gap-3"><h2 class="card-title">Services and items</h2><button type="button" class="btn-secondary btn-sm" id="add-invoice-line">Add line</button></div>
+      {{ item_formset.management_form }}
+      {% if item_formset.non_form_errors %}<div class="alert-error mb-3">{{ item_formset.non_form_errors|join:" " }}</div>{% endif %}
+      <div class="space-y-3" id="invoice-lines">
+        {% for item_form in item_formset %}<div class="grid gap-3 rounded border border-slate-200 p-3 sm:grid-cols-4">
+          {% for field in item_form.visible_fields %}<div class="{% if field.name == 'description' %}sm:col-span-4{% endif %}">{% include "components/field.html" %}</div>{% endfor %}
+        </div>{% endfor %}
+      </div>
+      <template id="empty-invoice-line"><div class="grid gap-3 rounded border border-slate-200 p-3 sm:grid-cols-4">
+        {% for field in item_formset.empty_form.visible_fields %}<div class="{% if field.name == 'description' %}sm:col-span-4{% endif %}">{% include "components/field.html" %}</div>{% endfor %}
+      </div></template>
+      <p class="mt-2 text-xs text-slate-500">Up to 25 lines per invoice. Tax is optional and calculated per line.</p>
+    </section>
+  </div>
+  <div class="flex justify-end gap-2 border-t border-slate-200 bg-slate-50 px-4 py-3"><a class="btn-secondary" href="{% url 'platform:billing' %}">Cancel</a><button class="btn-primary">Issue invoice</button></div>
+</form>
+{% endblock %}
+{% block scripts %}
+{% load static %}<script src="{% static 'js/platform-billing.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "platform/base.html" %}{% load ui %}
+{% block title %}Businesses{% endblock %}{% block heading %}Businesses{% endblock %}
+{% block actions %}<a href="{% url 'platform:business_create' %}" class="btn-accent">Create business</a>{% endblock %}
+{% block content %}
+<form class="filter-bar" method="get"><div class="grow"><label class="label">Search</label><input class="input" name="q" value="{{ request.GET.q }}" placeholder="Name or email"></div>
+<div><label class="label">Status</label><select class="input" name="status"><option value="">All</option><option value="pending" {% if request.GET.status == "pending" %}selected{% endif %}>Pending</option><option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Active</option><option value="suspended" {% if request.GET.status == "suspended" %}selected{% endif %}>Suspended</option></select></div>
+<button class="btn-primary">Filter</button></form>
+<div class="table-wrap"><table class="table"><thead><tr><th>Business</th><th>Type</th><th>Users</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>
+{% for b in object_list %}<tr><td class="font-medium text-slate-900">{{ b.name }}{% if b.is_demo %} <span class="badge badge-neutral">Demo</span>{% endif %}</td><td>{{ b.get_business_type_display }}</td><td>{{ b.user_count }}</td><td>{% badge b.status %}</td><td>{{ b.created_at|date:"d M Y" }}</td><td class="text-right"><a class="link" href="{% url 'platform:business_detail' b.pk %}">Open</a></td></tr>
+{% empty %}<tr><td colspan="6" class="py-10 text-center text-slate-500">No businesses found.</td></tr>{% endfor %}</tbody></table></div>{% include "components/pagination.html" %}
+{% endblock %}

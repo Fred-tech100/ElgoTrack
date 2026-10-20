@@ -1,0 +1,21 @@
+{% extends "platform/base.html" %}{% load ui %}
+{% block title %}Platform overview{% endblock %}{% block heading %}Platform overview{% endblock %}
+{% block actions %}<a href="{% url 'platform:business_create' %}" class="btn-accent">Create business</a>{% endblock %}
+{% block content %}
+<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+  <div class="card card-body"><p class="stat-label">Businesses</p><p class="stat-value">{{ counts.total }}</p></div>
+  <div class="card card-body"><p class="stat-label">Active</p><p class="stat-value">{{ counts.active }}</p></div>
+  <div class="card card-body"><p class="stat-label">Pending approval</p><p class="stat-value">{{ counts.pending }}</p></div>
+  <div class="card card-body"><p class="stat-label">Suspended</p><p class="stat-value">{{ counts.suspended }}</p></div>
+  <div class="card card-body"><p class="stat-label">Business users</p><p class="stat-value">{{ users }}</p></div>
+  <div class="card card-body"><p class="stat-label">Products</p><p class="stat-value">{{ products }}</p></div>
+  <div class="card card-body"><p class="stat-label">Sales recorded</p><p class="stat-value">{{ sales }}</p></div>
+  <div class="card card-body"><p class="stat-label">Failed sign-ins</p><p class="stat-value">{{ failed_logins }}</p></div>
+</div>
+{% if pending %}<div class="card mt-6"><div class="card-header"><h2 class="card-title">Awaiting approval</h2></div>
+<ul class="divide-y divide-slate-100">{% for b in pending %}<li class="flex items-center justify-between px-4 py-3"><div><p class="font-medium">{{ b.name }}</p><p class="text-xs text-slate-500">{{ b.get_business_type_display }} · registered {{ b.created_at|date:"d M Y" }}</p></div>
+<div class="flex gap-2"><a class="btn-secondary btn-sm" href="{% url 'platform:business_detail' b.pk %}">Review</a>
+<form method="post" action="{% url 'platform:business_action' b.pk 'approve' %}">{% csrf_token %}<button class="btn-primary btn-sm">Approve</button></form></div></li>{% endfor %}</ul></div>{% endif %}
+<div class="card mt-6"><div class="card-header"><h2 class="card-title">Recent activity</h2><a class="link text-xs" href="{% url 'platform:audit' %}">View all</a></div>
+<div class="table-wrap border-0 shadow-none"><table class="table"><tbody>{% for l in recent_logs %}<tr><td class="whitespace-nowrap text-xs text-slate-500">{{ l.created_at|date:"d M H:i" }}</td><td>{{ l.action }}</td><td>{{ l.business|default:"—" }}</td><td class="text-slate-500">{{ l.user_label }}</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Purchases{% endblock %}{% block heading %}Purchases{% endblock %}
+{% block actions %}{% if user|has_perm_code:"purchases.create" %}<a class="btn-accent" href="{% url 'purchases:create' %}">New purchase</a>{% endif %}{% endblock %}
+{% block content %}
+<form class="filter-bar" method="get"><div class="grow"><label class="label">Search</label><input class="input" name="q" value="{{ request.GET.q }}" placeholder="PO number, supplier or reference"></div>
+<div><label class="label">Supplier</label><select class="input" name="supplier"><option value="">All</option>{% for s in suppliers %}<option value="{{ s.pk }}" {% if request.GET.supplier == s.pk|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select></div>
+<div><label class="label">Status</label><select class="input" name="status"><option value="">All</option><option value="ordered" {% if request.GET.status == "ordered" %}selected{% endif %}>Ordered</option><option value="partially_received" {% if request.GET.status == "partially_received" %}selected{% endif %}>Partially received</option><option value="received" {% if request.GET.status == "received" %}selected{% endif %}>Received</option><option value="cancelled" {% if request.GET.status == "cancelled" %}selected{% endif %}>Cancelled</option></select></div><button class="btn-primary">Filter</button></form>
+{% if object_list %}<div class="table-wrap"><table class="table"><thead><tr><th>Purchase</th><th>Date</th><th>Supplier</th><th>Status</th><th class="num">Ordered</th><th class="num">Still owed</th></tr></thead><tbody>
+{% for p in object_list %}<tr><td><a class="link" href="{% url 'purchases:detail' p.pk %}">{{ p.number }}</a></td><td>{{ p.order_date|date:"d M Y" }}</td><td>{{ p.supplier.name }}</td><td>{% badge p.status p.get_status_display %}</td><td class="num">{% money p.total %}</td><td class="num {% if p.balance_due %}font-medium text-red-600{% endif %}">{% money p.balance_due %}</td></tr>{% endfor %}</tbody></table></div>{% include "components/pagination.html" %}
+{% else %}{% include "components/empty.html" with title="No purchases yet" text="Record stock you buy from suppliers. Receiving a purchase adds the stock automatically." url="/purchases/new/" action="New purchase" %}{% endif %}
+{% endblock %}

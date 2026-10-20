@@ -1,0 +1,51 @@
+<section class="landing-section" id="reconciliation" aria-labelledby="recon-heading">
+  <div class="landing-container landing-recon-grid">
+    <div class="landing-recon-copy">
+      <p class="landing-eyebrow">Stock Reconciliation</p>
+      <h2 id="recon-heading">Your records say one thing. Your shelves say another. Find out why.</h2>
+      <p>
+        ElgoTrack lets you compare expected stock with physical stock, identify
+        variances, record reasons, and keep an audit trail for every adjustment.
+      </p>
+      <ul class="landing-check-list">
+        <li>Compare system stock against a physical count</li>
+        <li>Record variance reasons — damage, missing, counting error</li>
+        <li>Keep a full audit trail for every adjustment</li>
+        <li>Review and approve adjustments with clear accountability</li>
+      </ul>
+      <a class="btn btn-accent landing-btn-lg" href="{% url 'accounts:register' %}">Explore ElgoTrack</a>
+    </div>
+
+    <div class="landing-recon-visual" aria-hidden="true">
+      <div class="card">
+        <header class="card-header">
+          <span class="badge badge-warning">Pending Review</span>
+          <span class="landing-recon-id">Reconciliation · #RC-0231</span>
+        </header>
+        <div class="card-body">
+          <dl class="landing-recon-rows">
+            <div class="landing-recon-row">
+              <dt>Expected stock</dt><dd>150</dd>
+            </div>
+            <div class="landing-recon-row">
+              <dt>Physical count</dt><dd>146</dd>
+            </div>
+            <div class="landing-recon-row landing-recon-row-variance">
+              <dt>Variance</dt><dd>−4</dd>
+            </div>
+            <div class="landing-recon-row">
+              <dt>Reason</dt><dd>Damaged / Missing</dd>
+            </div>
+            <div class="landing-recon-row">
+              <dt>Recorded by</dt><dd>Store Manager</dd>
+            </div>
+          </dl>
+        </div>
+        <footer class="card-header landing-recon-foot">
+          <span class="help">Audit trail: 3 entries</span>
+          <span class="badge badge-info">Adjustment pending</span>
+        </footer>
+      </div>
+    </div>
+  </div>
+</section>

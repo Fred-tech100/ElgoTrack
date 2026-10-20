@@ -1,0 +1,12 @@
+{% extends "auth_base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-semibold tracking-tight text-brand-900">Register your business</h1>
+<p class="mt-1 text-sm text-slate-500">Your account will be reviewed and approved before you can sign in.</p>
+<form method="post" class="mt-6 space-y-4" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="alert-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+  {% for field in form %}{% include "components/field.html" %}{% endfor %}
+  <button class="btn-accent w-full">Submit registration</button>
+</form>
+<p class="mt-5 text-sm"><a class="link" href="{% url 'accounts:login' %}">Back to sign in</a></p>
+{% endblock %}

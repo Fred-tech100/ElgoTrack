@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Reports{% endblock %}{% block heading %}Reports{% endblock %}
+{% block actions %}<a class="btn-secondary" href="{% url 'reports:daily' %}">Daily summary</a><a class="btn-secondary" href="{% url 'reports:summary' %}">Financial summary</a>{% if user|has_perm_code:"reports.builder" %}<a class="btn-accent" href="{% url 'reports:builder' %}">Custom report builder</a>{% endif %}{% endblock %}
+{% block content %}
+{% if saved %}<div class="card mb-6"><div class="card-header"><h2 class="card-title">Saved custom reports</h2></div><ul class="divide-y divide-slate-100">{% for s in saved %}<li class="px-4 py-2.5"><a class="link" href="{% url 'reports:saved' s.pk %}">{{ s.name }}</a></li>{% endfor %}</ul></div>{% endif %}
+<div class="grid gap-6 md:grid-cols-2">{% for group, items in groups.items %}<div class="card"><div class="card-header"><h2 class="card-title">{{ group }}</h2></div><ul class="divide-y divide-slate-100">
+{% for r in items %}<li><a href="{% url 'reports:run' r.key %}" class="block px-4 py-2.5 hover:bg-slate-50"><span class="font-medium text-brand-800">{{ r.title }}</span><span class="block text-xs text-slate-500">{{ r.description }}</span></a></li>{% endfor %}</ul></div>{% endfor %}</div>
+{% endblock %}

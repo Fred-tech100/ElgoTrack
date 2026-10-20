@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block nav %}
+<p class="nav-group">Platform</p>
+<a href="{% url 'platform:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}nav-link-active{% endif %}">Overview</a>
+<a href="{% url 'platform:businesses' %}" class="nav-link {% if 'business' in request.resolver_match.url_name %}nav-link-active{% endif %}">Businesses</a>
+<a href="{% url 'platform:billing' %}" class="nav-link {% if 'invoice' in request.resolver_match.url_name or 'billing' in request.resolver_match.url_name or 'receipt' in request.resolver_match.url_name %}nav-link-active{% endif %}">Invoices &amp; receipts</a>
+<a href="{% url 'platform:users' %}" class="nav-link {% if request.resolver_match.url_name == 'users' %}nav-link-active{% endif %}">Users</a>
+<a href="{% url 'platform:audit' %}" class="nav-link {% if request.resolver_match.url_name == 'audit' %}nav-link-active{% endif %}">Security & audit</a>
+{% endblock %}

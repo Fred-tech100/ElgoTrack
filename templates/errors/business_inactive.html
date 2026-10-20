@@ -1,0 +1,7 @@
+{% extends "auth_base.html" %}
+{% block title %}Account unavailable{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-semibold text-brand-900">{% if business.status == "pending" %}Awaiting approval{% else %}Account suspended{% endif %}</h1>
+<p class="mt-3 text-slate-600">{% if business.status == "pending" %}<strong>{{ business.name }}</strong> is waiting for approval from the platform administrator. You will be able to sign in as soon as it is approved.{% else %}Access for <strong>{{ business.name }}</strong> has been suspended. Please contact ElgonNova support.{% endif %}</p>
+<form method="post" action="{% url 'accounts:logout' %}" class="mt-6">{% csrf_token %}<button class="btn-secondary">Sign out</button></form>
+{% endblock %}

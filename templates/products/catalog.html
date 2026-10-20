@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Categories & units{% endblock %}{% block heading %}Categories & units{% endblock %}
+{% block content %}<div class="grid gap-6 md:grid-cols-2">
+<div class="card"><div class="card-header"><h2 class="card-title">Categories</h2>{% if user|has_perm_code:"products.manage" %}<a class="btn-accent btn-sm" href="{% url 'products:category_create' %}">Add</a>{% endif %}</div><ul class="divide-y divide-slate-100">
+{% for c in categories %}<li class="flex items-center justify-between px-4 py-2.5"><span>{{ c.name }}</span>{% if user|has_perm_code:"products.manage" %}<a class="link text-xs" href="{% url 'products:category_edit' c.pk %}">Edit</a>{% endif %}</li>{% empty %}<li class="px-4 py-6 text-center text-slate-500">No categories yet.</li>{% endfor %}</ul></div>
+<div class="card"><div class="card-header"><h2 class="card-title">Units of measurement</h2>{% if user|has_perm_code:"products.manage" %}<a class="btn-accent btn-sm" href="{% url 'products:unit_create' %}">Add</a>{% endif %}</div><ul class="divide-y divide-slate-100">
+{% for u in units %}<li class="flex items-center justify-between px-4 py-2.5"><span>{{ u.name }} <span class="text-slate-400">({{ u.abbreviation }})</span></span>{% if user|has_perm_code:"products.manage" %}<a class="link text-xs" href="{% url 'products:unit_edit' u.pk %}">Edit</a>{% endif %}</li>{% endfor %}</ul></div></div>{% endblock %}

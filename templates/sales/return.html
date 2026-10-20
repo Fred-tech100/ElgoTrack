@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Return items{% endblock %}{% block heading %}Return items from {{ sale.number }}{% endblock %}
+{% block breadcrumbs %}<nav class="mb-1 text-xs text-slate-500" aria-label="Breadcrumb"><a class="link" href="{% url 'sales:list' %}">Sales</a> / Return</nav>{% endblock %}
+{% block content %}
+<form method="post" class="max-w-3xl space-y-4">{% csrf_token %}
+<div class="table-wrap"><table class="table"><thead><tr><th>Item</th><th class="num">Sold</th><th class="num">Can return</th><th class="num">Return qty</th></tr></thead><tbody>
+{% for item, available in rows %}<tr><td>{{ item.description }}</td><td class="num">{{ item.quantity|qty }}</td><td class="num">{{ available|qty }}</td><td class="num"><input class="input w-24 text-right" type="number" min="0" step="any" max="{{ available }}" name="qty_{{ item.pk }}" value="0" {% if not available %}disabled{% endif %}></td></tr>{% endfor %}</tbody></table></div>
+<div class="card card-body grid gap-4 sm:grid-cols-3"><div class="sm:col-span-3"><label class="label">Reason</label><input class="input" name="reason" required maxlength="300"></div>
+<div><label class="label">Cash refund amount</label><input class="input" type="number" min="0" step="any" name="refund_amount" value="0"><p class="help">Leave 0 to reduce what the customer owes instead.</p></div>
+<div><label class="label">Refund method</label><select class="input" name="method">{% for m in methods %}<option value="{{ m.pk }}">{{ m.name }}</option>{% endfor %}</select></div></div>
+<div class="flex gap-2"><button class="btn-primary">Record return</button><a class="btn-secondary" href="{% url 'sales:detail' sale.pk %}">Cancel</a></div></form>
+{% endblock %}

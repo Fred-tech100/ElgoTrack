@@ -1,0 +1,10 @@
+Hi {{ first_name }},
+
+{{ business_name }} has attached your statement for {{ period_start }} to {{ period_end }}.
+Opening balance: {{ opening_balance }}
+Charges: {{ charges }}
+Payments and credits: {{ credits }}
+Closing balance: {{ closing_balance }}
+
+The full statement is included as a PDF attachment.
+{% if cta_url %}{{ cta_label }}: {{ cta_url }}{% endif %}

@@ -1,0 +1,11 @@
+{% extends "auth_base.html" %}
+{% block title %}Verify sign-in{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-semibold tracking-tight text-brand-900">Two-factor verification</h1>
+<p class="mt-1 text-sm text-slate-500">Open your authenticator app and enter the code for ElgonNova.</p>
+<form method="post" class="mt-6 space-y-4" novalidate>{% csrf_token %}
+  {% for field in form %}{% include "components/field.html" %}{% endfor %}
+  <button class="btn-primary w-full">Verify and sign in</button></form>
+<p class="mt-5 text-sm text-slate-500">Lost your phone? Use a recovery code like <span class="font-mono">a1b2c3-d4e5f6</span>, or ask your business owner to reset two-factor for you.</p>
+<p class="mt-3 text-sm"><a class="link" href="{% url 'accounts:login' %}">Back to sign in</a></p>
+{% endblock %}

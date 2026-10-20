@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}{% block heading %}Search{% endblock %}
+{% block content %}
+{% if q|length < 2 %}<p class="text-slate-500">Type at least two characters of a product name, SKU, barcode, customer, invoice, receipt or reference.</p>
+{% elif not sections %}{% include "components/empty.html" with title="No results" text="Nothing matches that search. Check the spelling or try a shorter term." %}
+{% else %}<div class="grid gap-5 md:grid-cols-2">{% for title, items in sections %}<div class="card"><div class="card-header"><h2 class="card-title">{{ title }}</h2></div><ul class="divide-y divide-slate-100">{% for label, sub, url in items %}<li><a class="block px-4 py-2.5 hover:bg-slate-50" href="{{ url }}"><span class="font-medium text-brand-800">{{ label }}</span><span class="block text-xs text-slate-500">{{ sub }}</span></a></li>{% endfor %}</ul></div>{% endfor %}</div>{% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Settings{% endblock %}{% block heading %}Business settings{% endblock %}
+{% block actions %}<a class="btn-secondary" href="{% url 'payments:methods' %}">Payment methods</a><a class="btn-secondary" href="{% url 'products:categories' %}">Categories & units</a><a class="btn-secondary" href="{% url 'expenses:categories' %}">Expense categories</a>{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="max-w-4xl space-y-5" novalidate>{% csrf_token %}
+{% if form.non_field_errors %}<div class="alert-error">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+<div class="card"><div class="card-header"><h2 class="card-title">Business profile</h2></div><div class="card-body grid gap-4 sm:grid-cols-2">
+<div>{% include "components/field.html" with field=form.name %}</div><div>{% include "components/field.html" with field=form.business_type %}</div>
+<div>{% include "components/field.html" with field=form.email %}</div><div>{% include "components/field.html" with field=form.phone %}</div>
+<div class="sm:col-span-2">{% include "components/field.html" with field=form.address %}</div>
+<div class="sm:col-span-2">{% include "components/field.html" with field=form.logo %}</div></div></div>
+<div class="card"><div class="card-header"><h2 class="card-title">Currency and tax</h2></div><div class="card-body grid gap-4 sm:grid-cols-2">
+<div>{% include "components/field.html" with field=form.currency_code %}</div><div>{% include "components/field.html" with field=form.currency_decimals %}</div>
+<div class="sm:col-span-2">{% include "components/field.html" with field=form.tax_enabled %}</div>
+<div>{% include "components/field.html" with field=form.tax_name %}</div><div>{% include "components/field.html" with field=form.default_tax_rate %}</div></div></div>
+<div class="card"><div class="card-header"><h2 class="card-title">Invoices and credit</h2></div><div class="card-body grid gap-4 sm:grid-cols-2">
+<div>{% include "components/field.html" with field=form.invoice_prefix %}</div><div>{% include "components/field.html" with field=form.receipt_prefix %}</div>
+<div>{% include "components/field.html" with field=form.default_credit_days %}</div><div>{% include "components/field.html" with field=form.fiscal_year_start_month %}</div>
+<div class="sm:col-span-2">{% include "components/field.html" with field=form.invoice_terms %}</div></div></div>
+<div class="card"><div class="card-header"><h2 class="card-title">Stock and security</h2></div><div class="card-body space-y-4">{% include "components/field.html" with field=form.allow_negative_stock %}{% include "components/field.html" with field=form.require_2fa %}</div></div>
+<div><button class="btn-primary">Save settings</button></div></form>
+{% endblock %}

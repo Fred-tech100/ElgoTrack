@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Stock movements{% endblock %}{% block heading %}Stock movements{% endblock %}
+{% block content %}
+<form class="filter-bar" method="get"><div class="grow"><label class="label">Search</label><input class="input" name="q" value="{{ request.GET.q }}" placeholder="Product, SKU or reference"></div>
+<div><label class="label">Type</label><select class="input" name="type"><option value="">All</option>{% for v,l in types %}<option value="{{ v }}" {% if request.GET.type == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+<div><label class="label">From</label><input type="date" class="input" name="start" value="{{ request.GET.start }}"></div><div><label class="label">To</label><input type="date" class="input" name="end" value="{{ request.GET.end }}"></div><button class="btn-primary">Filter</button></form>
+<div class="table-wrap"><table class="table"><thead><tr><th>When</th><th>Product</th><th>Type</th><th class="num">Change</th><th class="num">Balance</th><th>Reference</th><th>By</th></tr></thead><tbody>
+{% for m in object_list %}<tr><td class="whitespace-nowrap text-xs text-slate-500">{{ m.created_at|date:"d M Y H:i" }}</td><td><a class="link" href="{% url 'inventory:ledger' m.product.pk %}">{{ m.product.display_name }}</a></td><td>{{ m.get_movement_type_display }}</td><td class="num {% if m.quantity < 0 %}text-red-600{% else %}text-emerald-700{% endif %}">{{ m.quantity|qty }}</td><td class="num">{{ m.balance_after|qty }}</td><td class="text-xs">{{ m.source_ref|default:"—" }}</td><td class="text-slate-500">{{ m.created_by|default:"—" }}</td></tr>
+{% empty %}<tr><td colspan="7" class="py-10 text-center text-slate-500">No movements match.</td></tr>{% endfor %}</tbody></table></div>{% include "components/pagination.html" %}
+{% endblock %}
