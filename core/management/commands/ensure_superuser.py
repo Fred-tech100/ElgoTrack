@@ -12,31 +12,39 @@ class Command(BaseCommand):
 
         email = os.environ.get("DJANGO_SUPERUSER_EMAIL", "").strip()
         password = os.environ.get("DJANGO_SUPERUSER_PASSWORD", "").strip()
+        full_name = os.environ.get("DJANGO_SUPERUSER_FULL_NAME", "").strip() or "Platform Administrator"
 
         if not (email and password):
             self.stdout.write(self.style.WARNING(
-                "Skipping superuser creation: DJANGO_SUPERUSER_EMAIL or DJANGO_SUPERUSER_PASSWORD is missing."
+                "Skipping superuser: DJANGO_SUPERUSER_EMAIL or DJANGO_SUPERUSER_PASSWORD is missing."
             ))
             return
 
-        # Determine the field used for login (email or username)
-        user_field = getattr(User, "USERNAME_FIELD", "username")
-        lookup = {user_field: email if user_field == "email" else email.split("@")[0]}
+        # Use the model's own manager method — it handles email normalisation,
+        # sets is_staff/is_superuser, and calls save() safely.
+        user = User.objects.filter(email=email.lower()).first()
 
-        user, created = User.objects.get_or_create(**lookup)
+        if user:
+            # Update existing user: reset password, ensure admin flags,
+            # fill in full_name if it's empty.
+            user.is_staff = True
+            user.is_superuser = True
+            user.is_active = True
+            user.set_password(password)
+            if not user.full_name:
+                user.full_name = full_name
+            user.save()
+            self.stdout.write(self.style.SUCCESS(
+                f"Superuser updated (password reset): {email}"
+            ))
+            return
 
-        user.is_staff = True
-        user.is_superuser = True
-        user.is_active = True
-        user.set_password(password)
-
-        # Ensure email is set if the model has the field
-        if hasattr(user, "email") and user.email != email:
-            user.email = email
-
-        user.save()
-
-        if created:
-            self.stdout.write(self.style.SUCCESS(f"Superuser created: {email}"))
-        else:
-            self.stdout.write(self.style.SUCCESS(f"Superuser updated (password reset): {email}"))
+        # Create new user via create_superuser — this correctly sets
+        # is_staff/is_superuser BEFORE the initial save, satisfying the
+        # business_user_needs_business check constraint.
+        user = User.objects.create_superuser(
+            email=email,
+            password=password,
+            full_name=full_name,
+        )
+        self.stdout.write(self.style.SUCCESS(f"Superuser created: {email}"))
