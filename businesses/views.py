@@ -54,9 +54,17 @@ class RegisterView(FormView):
             owner_name=d["owner_name"], owner_phone=d["owner_phone"], owner_password=d["password"],
             status=Business.PENDING,
         )
-        from emailing.services import send_welcome
+        from emailing.services import notify_platform_admins_of_registration, send_welcome
 
         send_welcome(owner, awaiting_approval=True)
+        review_url = self.request.build_absolute_uri(
+            reverse("platform:business_detail", args=[business.pk])
+        )
+        notify_platform_admins_of_registration(
+            business=business,
+            owner=owner,
+            review_url=review_url,
+        )
         messages.success(self.request, "Thanks! Your business is awaiting approval. You can sign in once it is approved.")
         return super().form_valid(form)
 

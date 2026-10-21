@@ -129,6 +129,41 @@ def send_welcome(user, *, awaiting_approval=False):
     )
 
 
+def notify_platform_admins_of_registration(*, business, owner, review_url):
+    from accounts.models import User
+
+    admins = list(User.objects.filter(is_superuser=True, is_active=True).exclude(email=""))
+    if not admins:
+        logger.warning("No active platform admin with an email address; registration alert was not queued.")
+        return []
+
+    deliveries = []
+    for admin in admins:
+        deliveries.append(queue_email(
+            email_type="business_registration",
+            recipient=admin.email,
+            subject="New business registration awaiting approval",
+            template="notification",
+            context={
+                "heading_text": "New business awaiting approval",
+                "business_name": business.name,
+                "title": "A new business registration needs your review.",
+                "body": f"{owner.full_name} submitted an application for {business.name}.",
+                "detail_rows": [
+                    ("Business", business.name),
+                    ("Applicant", owner.full_name),
+                    ("Applicant email", owner.email),
+                ],
+                "cta_label": "Review application",
+                "cta_url": review_url,
+            },
+            business=business,
+            user=admin,
+            related=business,
+        ))
+    return deliveries
+
+
 def send_password_changed(user):
     app_url = f"{settings.ELGOTRACK_PUBLIC_URL}{reverse('accounts:login')}" if settings.ELGOTRACK_PUBLIC_URL else ""
     return queue_email(

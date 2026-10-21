@@ -162,9 +162,24 @@ class SecurityReviewTests(TenantTestCase):
         csp = r["Content-Security-Policy"]
         self.assertIn("script-src 'self'", csp)
         self.assertNotIn("script-src 'self' 'unsafe-inline'", csp)
+        self.assertNotIn("tawk.to", csp)
         self.assertIn("frame-ancestors 'none'", csp)
         self.assertEqual(r["X-Frame-Options"], "DENY")
         self.assertEqual(r["X-Content-Type-Options"], "nosniff")
+
+    def test_landing_page_loads_tawk_script_with_csp_nonce(self):
+        response = self.client.get(reverse("core:home"))
+        html = response.content.decode()
+        csp = response["Content-Security-Policy"]
+        nonce = re.search(r'<script type="text/javascript" nonce="([^"]+)">', html)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(nonce)
+        self.assertIn(f"'nonce-{nonce.group(1)}'", csp)
+        self.assertIn("https://embed.tawk.to", csp)
+        self.assertIn("https://*.tawk.to", csp)
+        self.assertIn("wss://*.tawk.to", csp)
+        self.assertIn("https://embed.tawk.to/6ad8e0c19a7b7c345d0b9f79/1k5fjmddi", html)
 
     def test_templates_have_no_inline_scripts_or_handlers(self):
         offenders = []
@@ -173,6 +188,8 @@ class SecurityReviewTests(TenantTestCase):
             if re.search(r"\son(click|submit|change|load|input|error)=", text) or "javascript:" in text:
                 offenders.append(f"{path.name}: inline handler")
             for m in re.finditer(r"<script(?![^>]*\bsrc=)[^>]*>", text):
+                if path.name == "base_landing.html" and 'nonce="{{ request.csp_nonce }}"' in m.group():
+                    continue
                 offenders.append(f"{path.name}: inline <script>")
         self.assertEqual(offenders, [])
 
