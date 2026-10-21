@@ -1,3 +1,4 @@
+import io
 import json
 import urllib.error
 from unittest import mock
@@ -46,7 +47,11 @@ class EmailDeliveryTests(TenantTestCase):
         self.assertEqual(delivery.status, EmailDelivery.FAILED)
         self.assertIn("BREVO_API_KEY is not configured", delivery.error_message)
 
-    @override_settings(BREVO_API_KEY="test-api-key", DEFAULT_FROM_EMAIL="no-reply@elgotrack.site")
+    @override_settings(
+        BREVO_API_KEY="test-api-key",
+        BREVO_SENDER_EMAIL="verified@example.test",
+        BREVO_SENDER_NAME="ElgoTrack Test",
+    )
     def test_brevo_api_request_keeps_key_in_header_and_records_provider_id(self):
         response = mock.MagicMock()
         response.read.return_value = b'{"messageId":"brevo-message-123"}'
@@ -60,18 +65,26 @@ class EmailDeliveryTests(TenantTestCase):
                 attachments=[],
             )
         request = urlopen.call_args.args[0]
+        self.assertEqual(request.full_url, BrevoProvider.endpoint)
+        self.assertEqual(request.get_method(), "POST")
         self.assertEqual(request.get_header("Api-key"), "test-api-key")
         self.assertNotIn("test-api-key", json.loads(request.data))
+        self.assertEqual(urlopen.call_args.kwargs["timeout"], 15)
+        body = json.loads(request.data)
+        self.assertEqual(body["sender"], {"name": "ElgoTrack Test", "email": "verified@example.test"})
+        self.assertEqual(body["to"], [{"email": "person@example.test"}])
+        self.assertEqual(body["htmlContent"], "<p>Hello</p>")
+        self.assertEqual(body["textContent"], "Hello")
         self.assertEqual(message_id, "brevo-message-123")
 
-    @override_settings(BREVO_API_KEY="test-api-key")
+    @override_settings(BREVO_API_KEY="test-api-key", BREVO_SENDER_EMAIL="no-reply@elgotrack.site")
     def test_brevo_auth_error_is_permanent_and_does_not_echo_response_body(self):
         response = urllib.error.HTTPError(
             BrevoProvider.endpoint,
             401,
             "Unauthorized",
             {},
-            None,
+            io.BytesIO(b"api-key=test-api-key person@example.test"),
         )
         with mock.patch("emailing.providers.urllib.request.urlopen", side_effect=response):
             with self.assertRaises(EmailProviderError) as error:
@@ -84,6 +97,63 @@ class EmailDeliveryTests(TenantTestCase):
                 )
         self.assertFalse(error.exception.retryable)
         self.assertEqual(str(error.exception), "Brevo returned HTTP 401.")
+
+    @override_settings(BREVO_API_KEY="test-api-key", BREVO_SENDER_EMAIL="no-reply@elgotrack.site")
+    def test_brevo_server_error_is_retryable_without_exposing_response_body(self):
+        response = urllib.error.HTTPError(
+            BrevoProvider.endpoint,
+            503,
+            "Unavailable",
+            {},
+            io.BytesIO(b"provider response for person@example.test"),
+        )
+        with mock.patch("emailing.providers.urllib.request.urlopen", side_effect=response):
+            with self.assertRaises(EmailProviderError) as error:
+                BrevoProvider().send(
+                    subject="Sensitive reset",
+                    recipient="person@example.test",
+                    html_content="<p>Private</p>",
+                    text_content="Private",
+                    attachments=[],
+                )
+        self.assertTrue(error.exception.retryable)
+        self.assertEqual(str(error.exception), "Brevo returned HTTP 503.")
+        self.assertNotIn("person@example.test", str(error.exception))
+
+    @override_settings(BREVO_API_KEY="test-api-key", BREVO_SENDER_EMAIL="no-reply@elgotrack.site")
+    def test_brevo_timeout_and_network_failures_are_retryable_and_sanitized(self):
+        failures = (TimeoutError("timeout for secret"), urllib.error.URLError("connection details"))
+        for failure in failures:
+            with self.subTest(failure=type(failure).__name__):
+                with mock.patch("emailing.providers.urllib.request.urlopen", side_effect=failure):
+                    with self.assertRaises(EmailProviderError) as error:
+                        BrevoProvider().send(
+                            subject="Test",
+                            recipient="person@example.test",
+                            html_content="<p>Hello</p>",
+                            text_content="Hello",
+                            attachments=[],
+                        )
+                self.assertTrue(error.exception.retryable)
+                self.assertEqual(str(error.exception), "Could not connect to Brevo.")
+                self.assertNotIn("secret", str(error.exception))
+                self.assertNotIn("person@example.test", str(error.exception))
+
+    @override_settings(BREVO_API_KEY="test-api-key", BREVO_SENDER_EMAIL="no-reply@elgotrack.site")
+    def test_brevo_invalid_success_response_is_not_treated_as_sent(self):
+        response = mock.MagicMock()
+        response.read.return_value = b'{"status":"accepted"}'
+        response.__enter__.return_value = response
+        with mock.patch("emailing.providers.urllib.request.urlopen", return_value=response):
+            with self.assertRaises(EmailProviderError) as error:
+                BrevoProvider().send(
+                    subject="Test",
+                    recipient="person@example.test",
+                    html_content="<p>Hello</p>",
+                    text_content="Hello",
+                    attachments=[],
+                )
+        self.assertEqual(str(error.exception), "Brevo returned an invalid response.")
 
     def test_missing_recipient_is_not_queued(self):
         self.assertIsNone(queue_email(
@@ -152,6 +222,58 @@ class EmailDeliveryTests(TenantTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(mail.outbox[-1].subject, "Your ElgoTrack password was changed")
         self.assertEqual(mail.outbox[-1].to, [self.owner.email])
+
+    @override_settings(
+        EMAIL_DELIVERY_MODE="sync",
+        EMAIL_PROVIDER="brevo",
+        BREVO_API_KEY="test-api-key",
+        BREVO_SENDER_EMAIL="verified@example.test",
+        BREVO_SENDER_NAME="ElgoTrack Test",
+        ELGOTRACK_PUBLIC_URL="https://app.example.test",
+    )
+    def test_sync_mode_sends_password_reset_through_mocked_brevo_api(self):
+        response_body = mock.MagicMock()
+        response_body.read.return_value = b'{"messageId":"brevo-reset-123"}'
+        response_body.__enter__.return_value = response_body
+        with mock.patch("emailing.providers.urllib.request.urlopen", return_value=response_body) as urlopen:
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    reverse("accounts:password_reset"),
+                    {"email": self.owner.email},
+                    follow=True,
+                )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "If an account exists")
+        delivery = EmailDelivery.objects.get(email_type="password_reset")
+        self.assertEqual(delivery.status, EmailDelivery.SENT)
+        self.assertEqual(delivery.provider_message_id, "brevo-reset-123")
+        body = json.loads(urlopen.call_args.args[0].data)
+        self.assertEqual(body["to"], [{"email": self.owner.email}])
+        self.assertIn("/accounts/reset/", body["textContent"])
+
+    @override_settings(EMAIL_DELIVERY_MODE="sync", EMAIL_PROVIDER="brevo", BREVO_API_KEY="test-api-key")
+    def test_failed_api_password_reset_keeps_generic_success_response(self):
+        response_error = urllib.error.HTTPError(
+            BrevoProvider.endpoint,
+            401,
+            "Unauthorized",
+            {},
+            None,
+        )
+        with mock.patch("emailing.providers.urllib.request.urlopen", side_effect=response_error):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    reverse("accounts:password_reset"),
+                    {"email": self.owner.email},
+                    follow=True,
+                )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "If an account exists")
+        delivery = EmailDelivery.objects.get(email_type="password_reset")
+        self.assertEqual(delivery.status, EmailDelivery.FAILED)
+        self.assertEqual(delivery.error_message, "Brevo returned HTTP 401.")
 
     @override_settings(EMAIL_PROVIDER="django", NOTIFICATION_CHANNELS=["email"],
                        ELGOTRACK_PUBLIC_URL="https://app.example.test")

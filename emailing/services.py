@@ -19,7 +19,7 @@ LOGO_PATH = "/static/images/landing/logo.png"
 
 def queue_email(*, email_type, recipient, subject, template, context, business=None, user=None,
                 related=None, attachments=()):
-    """Persist a delivery record and enqueue email only after the caller's transaction commits."""
+    """Persist a delivery record and send only after the caller's transaction commits."""
     recipient = (recipient or "").strip()
     try:
         validate_email(recipient)
@@ -65,6 +65,11 @@ def queue_email(*, email_type, recipient, subject, template, context, business=N
     }
 
     def enqueue():
+        if settings.EMAIL_DELIVERY_MODE == "sync":
+            from .tasks import deliver_email_synchronously
+
+            deliver_email_synchronously(delivery.pk, payload)
+            return
         try:
             from .tasks import deliver_email
 

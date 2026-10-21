@@ -11,8 +11,7 @@ from .services import mark_delivery_failed, render_email
 logger = logging.getLogger(__name__)
 
 
-@shared_task(bind=True, max_retries=3)
-def deliver_email(self, delivery_id, payload):
+def _deliver_email(delivery_id, payload, task=None):
     try:
         delivery = EmailDelivery.objects.get(pk=delivery_id)
     except EmailDelivery.DoesNotExist:
@@ -35,11 +34,11 @@ def deliver_email(self, delivery_id, payload):
             attachments=payload.get("attachments", []),
         )
     except EmailProviderError as exc:
-        if exc.retryable and self.request.retries < self.max_retries:
+        if task is not None and exc.retryable and task.request.retries < task.max_retries:
             delivery.status = EmailDelivery.PENDING
             delivery.error_message = str(exc)[:300]
             delivery.save(update_fields=["status", "error_message", "updated_at"])
-            raise self.retry(exc=exc, countdown=60 * (2 ** self.request.retries))
+            raise task.retry(exc=exc, countdown=60 * (2 ** task.request.retries))
         mark_delivery_failed(delivery, str(exc))
         logger.error("Email delivery %s failed: %s", delivery.pk, exc)
         return
@@ -60,3 +59,12 @@ def deliver_email(self, delivery_id, payload):
         from notifications.models import Notification
 
         Notification.objects.filter(pk=delivery.related_id, emailed_at__isnull=True).update(emailed_at=timezone.now())
+
+
+@shared_task(bind=True, max_retries=3)
+def deliver_email(self, delivery_id, payload):
+    return _deliver_email(delivery_id, payload, task=self)
+
+
+def deliver_email_synchronously(delivery_id, payload):
+    _deliver_email(delivery_id, payload)

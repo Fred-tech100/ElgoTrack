@@ -54,7 +54,8 @@ One concurrency test (two simultaneous sales of the last units) only runs on Pos
 ## Environment variables
 
 See `.env.example`: `SECRET_KEY` (required unless `DEBUG=true`), `DEBUG`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`,
-`DATABASE_URL`, `REDIS_URL`, `EMAIL_PROVIDER`, `BREVO_API_KEY`, `DEFAULT_FROM_EMAIL`, `DEFAULT_FROM_NAME`,
+`DATABASE_URL`, `REDIS_URL`, `EMAIL_PROVIDER`, `EMAIL_DELIVERY_MODE`, `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`,
+`BREVO_SENDER_NAME`, `DEFAULT_FROM_EMAIL`, `DEFAULT_FROM_NAME`,
 `SUPPORT_EMAIL`, `ELGOTRACK_PUBLIC_URL`, `NOTIFICATION_CHANNELS`, `TRUST_X_FORWARDED_FOR`,
 `SECURE_SSL_REDIRECT`, `MEDIA_ROOT`. Development defaults to Django's console email backend; production delivery uses
 Brevo's transactional API and the Celery worker. Never commit `.env`, databases, uploaded media, backups, or private certificates.

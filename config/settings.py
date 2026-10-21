@@ -186,12 +186,17 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 # --- Transactional email ---
-EMAIL_PROVIDER = env("EMAIL_PROVIDER", "smtp").lower()
+EMAIL_PROVIDER = env("EMAIL_PROVIDER", "django" if DEBUG or TESTING else "brevo").lower()
 BREVO_API_KEY = env("BREVO_API_KEY", "")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "no-reply@elgotrack.site")
 DEFAULT_FROM_NAME = env("DEFAULT_FROM_NAME", "ElgoTrack")
+BREVO_SENDER_EMAIL = env("BREVO_SENDER_EMAIL", DEFAULT_FROM_EMAIL)
+BREVO_SENDER_NAME = env("BREVO_SENDER_NAME", "")
 SUPPORT_EMAIL = env("SUPPORT_EMAIL", "support@elgotrack.site")
 ELGOTRACK_PUBLIC_URL = env("ELGOTRACK_PUBLIC_URL", SITE_URL).rstrip("/")
+EMAIL_DELIVERY_MODE = env("EMAIL_DELIVERY_MODE", "celery").lower()
+if EMAIL_DELIVERY_MODE not in {"celery", "sync"}:
+    raise ImproperlyConfigured("EMAIL_DELIVERY_MODE must be 'celery' or 'sync'.")
 
 # SMTP settings (used when EMAIL_PROVIDER is "smtp")
 EMAIL_HOST = env("EMAIL_HOST", "")

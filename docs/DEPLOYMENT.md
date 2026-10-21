@@ -31,18 +31,50 @@ platform's secret manager (never commit the API key):
 
 ```env
 EMAIL_PROVIDER=brevo
+EMAIL_DELIVERY_MODE=celery
 BREVO_API_KEY=<Brevo transactional API key>
 DEFAULT_FROM_EMAIL=no-reply@elgotrack.site
 DEFAULT_FROM_NAME=ElgoTrack
+BREVO_SENDER_EMAIL=no-reply@elgotrack.site
+BREVO_SENDER_NAME=ElgoTrack
 SUPPORT_EMAIL=support@elgotrack.site
 ELGOTRACK_PUBLIC_URL=https://your.domain
 NOTIFICATION_CHANNELS=in_app,email
 ```
 
-The sender must be verified in Brevo. Keep the Celery worker and Redis broker running; transactional email is queued
-after the enclosing database transaction commits. The app records delivery status and retries transient provider
-failures. `EMAIL_PROVIDER=django` uses Django's console backend outside tests and does not deliver to customers.
+The sender must be verified in Brevo. `BREVO_SENDER_EMAIL` and `BREVO_SENDER_NAME` select the authenticated sender;
+they default to `DEFAULT_FROM_EMAIL` and `DEFAULT_FROM_NAME`. The provider calls Brevo's transactional API over HTTPS
+with a 15-second timeout. API keys stay in server-side environment variables and are sent only in the request header.
+
+For deployments with a Celery worker, keep `EMAIL_DELIVERY_MODE=celery` and the Redis broker/worker running;
+transactional email is queued after the enclosing database transaction commits, and transient provider failures are
+retried. For a single Render free web service without a worker, set `EMAIL_DELIVERY_MODE=sync`: delivery then runs
+from the web process after commit and does not require Redis or Render Shell. This can add up to 15 seconds to the
+request that triggers an email; failures are recorded on the delivery and safely logged, never marked as sent.
+`EMAIL_PROVIDER=django` uses Django's configured backend (console/locmem by default) and does not deliver to customers.
 Use `python manage.py test tests.test_emailing` to render and exercise delivery flows locally without a Brevo key.
+
+### Render free web service
+
+In the Render dashboard, open the web service's **Environment** settings and add the following values; use the verified
+sender address/domain you configured in Brevo rather than an assumed address:
+
+```text
+DEBUG=false
+EMAIL_PROVIDER=brevo
+EMAIL_DELIVERY_MODE=sync
+BREVO_API_KEY=<your Brevo transactional API key>
+BREVO_SENDER_EMAIL=<verified sender email>
+BREVO_SENDER_NAME=ElgoTrack
+DEFAULT_FROM_EMAIL=<same verified sender email>
+DEFAULT_FROM_NAME=ElgoTrack
+ELGOTRACK_PUBLIC_URL=https://<your Render hostname or custom domain>
+```
+
+Save the environment settings and redeploy the web service. Do not set SMTP host, username, password, or port for this
+configuration. Confirm that the API key belongs to the Brevo account where the sender is verified, then submit a reset
+request for an account you control and check Brevo's transactional logs. Failed attempts are visible in the app's
+`EmailDelivery` status/error record and server logs without logging the recipient, message, reset URL, or API key.
 
 Account registration sends a welcome email; new users receive set-password invitations; password reset/change and
 role-change security messages use transactional templates. Inventory/overdue-credit alerts are sent only when

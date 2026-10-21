@@ -422,7 +422,8 @@ class DeploymentArtefactTests(TenantTestCase):
     def test_env_example_has_no_real_secrets_and_covers_settings(self):
         text = (ROOT / ".env.example").read_text()
         for var in ("SECRET_KEY", "DATABASE_URL", "REDIS_URL", "ALLOWED_HOSTS", "POSTGRES_PASSWORD",
-                    "EMAIL_PROVIDER", "BREVO_API_KEY", "DEFAULT_FROM_EMAIL", "NOTIFICATION_CHANNELS"):
+                    "EMAIL_PROVIDER", "EMAIL_DELIVERY_MODE", "BREVO_API_KEY", "BREVO_SENDER_EMAIL",
+                    "BREVO_SENDER_NAME", "DEFAULT_FROM_EMAIL", "NOTIFICATION_CHANNELS"):
             self.assertIn(var, text)
         self.assertIn("change-me", text)
 

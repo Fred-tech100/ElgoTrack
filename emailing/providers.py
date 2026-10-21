@@ -1,3 +1,4 @@
+import http.client
 import json
 import logging
 import urllib.error
@@ -18,6 +19,7 @@ class EmailProviderError(Exception):
 
 class BrevoProvider:
     endpoint = "https://api.brevo.com/v3/smtp/email"
+    timeout = 15
 
     def send(self, *, subject, recipient, html_content, text_content, attachments):
         if not settings.BREVO_API_KEY:
@@ -46,27 +48,32 @@ class BrevoProvider:
         )
         try:
             # The endpoint is a fixed HTTPS URL and is not influenced by request data.
-            with urllib.request.urlopen(request, timeout=15) as response:  # nosec B310
-                data = json.loads(response.read().decode("utf-8") or "{}")
+            with urllib.request.urlopen(request, timeout=self.timeout) as response:  # nosec B310
+                response_body = response.read()
         except urllib.error.HTTPError as exc:
             raise EmailProviderError(
                 f"Brevo returned HTTP {exc.code}.",
                 retryable=exc.code == 429 or exc.code >= 500,
             ) from None
-        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        except (http.client.HTTPException, urllib.error.URLError, TimeoutError, OSError) as exc:
             raise EmailProviderError("Could not connect to Brevo.", retryable=True) from exc
-        return data.get("messageId", "")
+
+        try:
+            data = json.loads(response_body.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise EmailProviderError("Brevo returned an invalid response.") from exc
+        if not isinstance(data, dict) or not isinstance(data.get("messageId"), str) or not data["messageId"].strip():
+            raise EmailProviderError("Brevo returned an invalid response.")
+        return data["messageId"]
 
     @staticmethod
     def _sender():
-        from email.utils import parseaddr
-
-        display_name, address = parseaddr(settings.DEFAULT_FROM_EMAIL)
-        return display_name or settings.DEFAULT_FROM_NAME, address
+        display_name, address = parseaddr(settings.BREVO_SENDER_EMAIL)
+        return settings.BREVO_SENDER_NAME or display_name or settings.DEFAULT_FROM_NAME, address
 
 
 class DjangoEmailProvider:
-    """Safe development/test provider using Django's configured console/locmem backend."""
+    """Send through Django's configured email backend."""
 
     def send(self, *, subject, recipient, html_content, text_content, attachments):
         message = EmailMultiAlternatives(
@@ -102,6 +109,6 @@ class DjangoEmailProvider:
 def get_provider():
     if settings.EMAIL_PROVIDER == "brevo":
         return BrevoProvider()
-    if settings.EMAIL_PROVIDER == "django":
+    if settings.EMAIL_PROVIDER in {"django", "smtp"}:
         return DjangoEmailProvider()
-    raise EmailProviderError("EMAIL_PROVIDER must be 'brevo' or 'django'.")
+    raise EmailProviderError("EMAIL_PROVIDER must be 'brevo', 'django', or 'smtp'.")
