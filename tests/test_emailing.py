@@ -24,8 +24,12 @@ class EmailDeliveryTests(TenantTestCase):
         delivery.refresh_from_db()
         self.assertEqual(delivery.status, EmailDelivery.SENT)
         self.assertEqual(delivery.email_type, "welcome")
+        self.assertEqual(mail.outbox[-1].subject, "Your ElgoTrack account is ready")
         self.assertEqual(mail.outbox[-1].to, [self.owner.email])
         html = mail.outbox[-1].alternatives[0][0]
+        self.assertIn("Your ElgoTrack account is ready", html)
+        self.assertIn("has been approved and is ready to use", html)
+        self.assertIn("email address and password you chose when registering", html)
         self.assertIn("Alpha Hardware", html)
         self.assertIn("https://app.example.test/accounts/login/", html)
         self.assertIn("ElgoTrack", html)
@@ -184,7 +188,91 @@ class EmailDeliveryTests(TenantTestCase):
         owner = User.objects.get(email="nina@newshop.test")
         delivery = EmailDelivery.objects.get(user=owner, email_type="welcome")
         self.assertEqual(delivery.status, EmailDelivery.SENT)
+        self.assertEqual(mail.outbox[-1].subject, "Thank you for registering with ElgoTrack")
+        html = mail.outbox[-1].alternatives[0][0]
+        self.assertIn("Thank you for registering with ElgoTrack", html)
+        self.assertIn("application has been received and is currently awaiting approval", html)
+        self.assertIn("let you know as soon as your account is ready", html)
+        self.assertIn("Thank you for registering", mail.outbox[-1].body)
         self.assertIn("awaiting approval", mail.outbox[-1].body.lower())
+        self.assertIn("let you know as soon as your account is ready", mail.outbox[-1].body)
+
+        from businesses import services as business_services
+        from businesses.models import Business
+
+        with self.captureOnCommitCallbacks(execute=True):
+            business_services.set_status(owner.business, Business.ACTIVE, user=owner)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            business_services.set_status(owner.business, Business.ACTIVE, user=owner)
+
+        deliveries = EmailDelivery.objects.filter(user=owner, email_type="welcome").order_by("created_at")
+        self.assertEqual(deliveries.count(), 2)
+        self.assertEqual(
+            list(deliveries.values_list("status", flat=True)),
+            [EmailDelivery.SENT, EmailDelivery.SENT],
+        )
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(mail.outbox[1].subject, "Your ElgoTrack account is ready")
+        self.assertIn("has been approved and is ready to use", mail.outbox[1].alternatives[0][0])
+        self.assertIn("email address and password you chose when registering", mail.outbox[1].body)
+        self.assertIn("Sign in to your account", mail.outbox[1].alternatives[0][0])
+        self.assertIn("has been approved and is ready to use", mail.outbox[1].body)
+
+    @override_settings(EMAIL_PROVIDER="django", ELGOTRACK_PUBLIC_URL="https://app.example.test")
+    def test_approving_pending_business_sends_account_ready_email_once(self):
+        from businesses import services as business_services
+        from businesses.models import Business
+
+        self.business.status = Business.PENDING
+        self.business.save(update_fields=["status"])
+
+        with self.captureOnCommitCallbacks(execute=True):
+            business_services.set_status(self.business, Business.ACTIVE, user=self.owner)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [self.owner.email])
+        self.assertEqual(mail.outbox[0].subject, "Your ElgoTrack account is ready")
+        self.assertIn("Your ElgoTrack account is ready", mail.outbox[0].alternatives[0][0])
+        self.assertIn("has been approved and is ready to use", mail.outbox[0].alternatives[0][0])
+        self.assertIn("email address and password you chose when registering", mail.outbox[0].body)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            business_services.set_status(self.business, Business.ACTIVE, user=self.owner)
+
+        self.assertEqual(len(mail.outbox), 1)
+        delivery = EmailDelivery.objects.get(user=self.owner, email_type="welcome")
+        self.assertEqual(delivery.status, EmailDelivery.SENT)
+
+    @override_settings(EMAIL_PROVIDER="django", ELGOTRACK_PUBLIC_URL="https://app.example.test")
+    def test_platform_approval_action_sends_owner_success_email_once(self):
+        from accounts.models import User
+        from businesses.models import Business
+
+        root = User.objects.create_superuser(email="root@elgotrack.test", full_name="Platform Admin")
+        self.login(root)
+        self.business.status = Business.PENDING
+        self.business.save(update_fields=["status"])
+        approval_url = reverse("platform:business_action", args=[self.business.pk, "approve"])
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(approval_url)
+
+        self.assertEqual(response.status_code, 302)
+        self.business.refresh_from_db()
+        self.assertEqual(self.business.status, Business.ACTIVE)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [self.owner.email])
+        self.assertEqual(mail.outbox[0].subject, "Your ElgoTrack account is ready")
+        self.assertIn("email address and password you chose when registering", mail.outbox[0].body)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(approval_url)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(mail.outbox), 1)
+        delivery = EmailDelivery.objects.get(user=self.owner, email_type="welcome")
+        self.assertEqual(delivery.status, EmailDelivery.SENT)
 
     def test_queue_failure_is_logged_without_raising(self):
         with mock.patch("emailing.tasks.deliver_email.delay", side_effect=OSError):

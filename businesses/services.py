@@ -126,8 +126,19 @@ def record_platform_payment(*, invoice, user, amount, paid_on, method, reference
     return payment
 
 
+@transaction.atomic
 def set_status(business, status, user=None):
+    business = Business.objects.select_for_update().get(pk=business.pk)
     before = business.status
+    if before == status:
+        return
+
     business.status = status
     business.save(update_fields=["status", "updated_at"])
     log_action(f"business.{status}", business=business, user=user, obj=business, before={"status": before}, after={"status": status})
+    if before == Business.PENDING and status == Business.ACTIVE:
+        from emailing.services import send_welcome
+
+        owner = User.objects.filter(business=business, role__system_key="owner").first()
+        if owner:
+            send_welcome(owner, awaiting_approval=False)

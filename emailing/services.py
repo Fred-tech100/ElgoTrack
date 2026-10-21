@@ -120,7 +120,7 @@ def send_welcome(user, *, awaiting_approval=False):
             "first_name": user.get_short_name(),
             "business_name": user.business.name if user.business_id else "",
             "awaiting_approval": awaiting_approval,
-            "cta_label": "Sign in" if awaiting_approval else "Go to dashboard",
+            "cta_label": "Sign in" if awaiting_approval else "Sign in to your account",
             "cta_url": app_url,
         },
         business=user.business,
