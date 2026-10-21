@@ -1,12 +1,13 @@
 {% extends "emails/base.html" %}
-{% block title %}Your ElgoTrack account is ready{% endblock %}
-{% block heading %}Your ElgoTrack account is ready{% endblock %}
+{% block title %}{% if awaiting_approval %}Thank you for registering with ElgoTrack{% else %}Your ElgoTrack account is ready{% endif %}{% endblock %}
+{% block heading %}{% if awaiting_approval %}Thank you for registering with ElgoTrack{% else %}Your ElgoTrack account is ready{% endif %}{% endblock %}
 {% block content %}
 <p style="margin:0 0 14px;font-size:15px;line-height:1.65;">Hi {{ first_name }},</p>
-<p style="margin:0 0 14px;font-size:15px;line-height:1.65;">Welcome to ElgoTrack{% if business_name %} for {{ business_name }}{% endif %}. Keep products, stock, sales and customer accounts organised in one place.</p>
 {% if awaiting_approval %}
-<p style="margin:0;font-size:15px;line-height:1.65;">Your business is awaiting approval. We’ll let you know when it is ready to use.</p>
+<p style="margin:0 0 14px;font-size:15px;line-height:1.65;">Thank you for registering{% if business_name %} {{ business_name }}{% endif %} with ElgoTrack. Your application has been received and is currently awaiting approval.</p>
+<p style="margin:0;font-size:15px;line-height:1.65;">We’ll review your details and let you know as soon as your account is ready. If we need anything else from you, we’ll be in touch at this address.</p>
 {% else %}
+<p style="margin:0 0 14px;font-size:15px;line-height:1.65;">Your ElgoTrack account{% if business_name %} for {{ business_name }}{% endif %} has been approved and is ready to use.</p>
 <p style="margin:0;font-size:15px;line-height:1.65;">When you sign in, start with your business profile, then add products and record opening stock.</p>
 {% endif %}
 {% endblock %}

@@ -106,10 +106,15 @@ def mark_delivery_failed(delivery, message):
 
 def send_welcome(user, *, awaiting_approval=False):
     app_url = f"{settings.ELGOTRACK_PUBLIC_URL}{reverse('accounts:login')}" if settings.ELGOTRACK_PUBLIC_URL else ""
+    subject = (
+        "Thank you for registering with ElgoTrack"
+        if awaiting_approval
+        else "Your ElgoTrack account is ready"
+    )
     return queue_email(
         email_type="welcome",
         recipient=user.email,
-        subject="Your ElgoTrack account is ready",
+        subject=subject,
         template="welcome",
         context={
             "first_name": user.get_short_name(),
