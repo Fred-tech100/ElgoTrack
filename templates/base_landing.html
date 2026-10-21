@@ -13,6 +13,7 @@
   <meta property="og:image" content="{% static 'images/landing/branding/og-image.png' %}">
   <meta property="og:url" content="{{ request.build_absolute_uri }}">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/">
   <link rel="preload" as="image"
       href="{% static 'images/landing/hero/hero-dashboard.png' %}"
@@ -26,5 +27,18 @@
 <body class="landing-body">
   {% block content %}{% endblock %}
   <script src="{% static 'js/landing.js' %}" defer></script>
+  <!--Start of Tawk.to Script-->
+  <script type="text/javascript">
+  var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+  (function(){
+  var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+  s1.async=true;
+  s1.src='https://embed.tawk.to/6ad8e0c19a7b7c345d0b9f79/1k5firu6q';
+  s1.charset='UTF-8';
+  s1.setAttribute('crossorigin','*');
+  s0.parentNode.insertBefore(s1,s0);
+  })();
+  </script>
+  <!--End of Tawk.to Script-->
 </body>
 </html>
